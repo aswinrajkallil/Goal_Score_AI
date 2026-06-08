@@ -48,12 +48,6 @@ Q: Explain the offside rule.
 A:
 • A player is offside if they are nearer to the opponent's goal line than both the ball and the second-last defender when the ball is played to them.
 • Being in an offside position alone is not an offense.
-
-=== IMPORTANT ===
-- Never mention Aswin.
-- Never mention Jar AI.
-- Never discuss portfolios, resumes, or personal projects.
-- Stay focused on football.
 `,
   model: "deepseek/deepseek-chat",
 
