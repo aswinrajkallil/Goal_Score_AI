@@ -64,16 +64,17 @@ app.post("/api/chat", async (req, res) => {
 app.get("/api/fixtures", async (req, res) => {
   try {
     const response = await axios.get(
-      "https://v3.football.api-sports.io/fixtures",
+      // "https://v3.football.api-sports.io/fixtures",
+      "https://www.thesportsdb.com/api/v1/json/123/eventsday.php",
       {
-        headers: {
-          "x-apisports-key": process.env.API_FOOTBALL_KEY,
-        },
-        params: {
-          date: req.query.date,
-        },
+      params: {
+        d: req.query.date,
+        s: "Soccer",
+      },
       }
     );
+
+    console.log(response.data);
 
     res.json(response.data);
   } catch (error) {

@@ -1,14 +1,14 @@
 :root {
-  /* FIFA World Cup Theme */
+  /* FIFA World Cup + AI Theme */
 
   --bg: #050816;
   --card: #0f172a;
   --card-hover: #162033;
 
-  --text: #cbd5e1;
+  --text: #e2e8f0;
   --text-h: #ffffff;
 
-  --border: #1e293b;
+  --border: #334155;
 
   --primary: #00d4ff;
   --primary-dark: #0099ff;
@@ -21,7 +21,8 @@
   --accent-border: rgba(0, 212, 255, 0.4);
 
   --shadow:
-    0 10px 25px rgba(0, 0, 0, 0.35);
+    0 12px 30px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(255, 255, 255, 0.02);
 
   --sans:
     Inter,
@@ -41,10 +42,16 @@
   letter-spacing: 0.2px;
 
   color: var(--text);
+
   background:
     radial-gradient(
       circle at top,
-      rgba(0, 212, 255, 0.12),
+      rgba(0, 212, 255, 0.15),
+      transparent 35%
+    ),
+    radial-gradient(
+      circle at bottom right,
+      rgba(0, 153, 255, 0.08),
       transparent 40%
     ),
     var(--bg);
@@ -64,6 +71,10 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background:
     radial-gradient(
@@ -71,9 +82,15 @@ body {
       rgba(0, 212, 255, 0.15),
       transparent 35%
     ),
+    radial-gradient(
+      circle at bottom right,
+      rgba(0, 153, 255, 0.08),
+      transparent 40%
+    ),
     var(--bg);
 
   color: var(--text);
+
   min-height: 100vh;
 }
 
@@ -124,10 +141,11 @@ h3 {
   font-weight: 600;
 }
 
-/* PARAGRAPH */
+/* PARAGRAPHS */
 
 p {
   color: var(--text);
+
   line-height: 1.8;
 }
 
@@ -135,11 +153,14 @@ p {
 
 a {
   color: var(--primary);
+
   text-decoration: none;
+
+  transition: 0.25s;
 }
 
 a:hover {
-  opacity: .85;
+  opacity: 0.85;
 }
 
 /* BUTTONS */
@@ -153,17 +174,68 @@ button {
 
   font-weight: 600;
 
-  transition: .25s;
+  padding: 12px 20px;
+
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--primary),
+      var(--primary-dark)
+    );
+
+  transition: all 0.25s ease;
 }
 
 button:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 8px 20px rgba(0, 212, 255, 0.3);
 }
 
-/* CARD */
+button:active {
+  transform: translateY(0);
+}
+
+/* INPUTS */
+
+input,
+select,
+textarea {
+  width: 100%;
+
+  padding: 14px 16px;
+
+  border-radius: 14px;
+
+  border: 1px solid var(--border);
+
+  background: var(--card);
+
+  color: var(--text);
+
+  outline: none;
+
+  transition: 0.25s;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--primary);
+
+  box-shadow:
+    0 0 0 3px rgba(0, 212, 255, 0.15);
+}
+
+/* CARDS */
 
 .card {
-  background: var(--card);
+  background: rgba(15, 23, 42, 0.95);
+
+  backdrop-filter: blur(12px);
 
   border: 1px solid var(--border);
 
@@ -172,10 +244,60 @@ button:hover {
   padding: 24px;
 
   box-shadow: var(--shadow);
+
+  transition: all 0.3s ease;
 }
 
 .card:hover {
   background: var(--card-hover);
+
+  border-color: var(--accent-border);
+
+  transform: translateY(-4px);
+}
+
+/* TABLES */
+
+table {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  background: var(--card);
+
+  border-radius: 20px;
+
+  overflow: hidden;
+
+  box-shadow: var(--shadow);
+}
+
+thead {
+  background: var(--accent-bg);
+
+  border-bottom: 1px solid var(--accent-border);
+}
+
+th {
+  color: var(--text-h);
+
+  padding: 18px;
+
+  text-align: center;
+}
+
+td {
+  color: var(--text);
+
+  padding: 16px;
+
+  text-align: center;
+
+  border-bottom: 1px solid var(--border);
+}
+
+tbody tr:hover {
+  background: rgba(255, 255, 255, 0.03);
 }
 
 /* CODE */
@@ -183,13 +305,51 @@ button:hover {
 code {
   font-family: var(--mono);
 
-  background: rgba(255,255,255,.05);
+  background: rgba(255, 255, 255, 0.05);
 
   color: var(--primary);
 
   padding: 4px 8px;
 
   border-radius: 8px;
+}
+
+/* STATUS COLORS */
+
+.live {
+  color: var(--danger);
+
+  font-weight: 700;
+}
+
+.finished {
+  color: var(--success);
+
+  font-weight: 700;
+}
+
+.upcoming {
+  color: var(--warning);
+
+  font-weight: 700;
+}
+
+/* CONTAINERS */
+
+.container {
+  width: 100%;
+
+  max-width: 1200px;
+
+  margin: 0 auto;
+}
+
+/* SELECTION */
+
+::selection {
+  background: var(--primary);
+
+  color: white;
 }
 
 /* SCROLLBAR */
@@ -204,13 +364,13 @@ code {
 
 ::-webkit-scrollbar-thumb {
   background: var(--primary);
+
   border-radius: 20px;
 }
 
 /* MOBILE */
 
 @media (max-width: 1024px) {
-
   :root {
     font-size: 15px;
   }
@@ -225,7 +385,6 @@ code {
 }
 
 @media (max-width: 768px) {
-
   #root {
     padding: 12px;
   }
@@ -237,4 +396,16 @@ code {
   h2 {
     font-size: 22px;
   }
+
+  button {
+    width: 100%;
+  }
+
+  th,
+  td {
+    padding: 12px 8px;
+
+    font-size: 14px;
+  }
 }
+
