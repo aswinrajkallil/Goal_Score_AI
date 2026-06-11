@@ -1,7 +1,12 @@
 import Chat from "./components/Chat";
 
 function App() {
-  return <Chat />;
+  return(
+  <div>
+    <Chat />
+  </div>
+  )
+
 }
 
 export default App;

@@ -59,6 +59,35 @@ app.post("/api/chat", async (req, res) => {
   }
 });
 
+// Endpoint to fetch football fixtures based on date
+
+app.get("/api/fixtures", async (req, res) => {
+  try {
+    const response = await axios.get(
+      "https://v3.football.api-sports.io/fixtures",
+      {
+        headers: {
+          "x-apisports-key": process.env.API_FOOTBALL_KEY,
+        },
+        params: {
+          date: req.query.date,
+        },
+      }
+    );
+
+    res.json(response.data);
+  } catch (error) {
+    console.error(
+      "Football API Error:",
+      error.response?.data || error.message
+    );
+
+    res.status(500).json({
+      error: "Failed to fetch fixtures",
+    });
+  }
+});
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
