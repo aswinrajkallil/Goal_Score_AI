@@ -10,8 +10,65 @@ function getTime() {
   });
 }
 
+// ─── Default Questions Pool ───────────────────────────────────
+const defaultQuestions = [
+  {
+    label: "🏆 2026 Format",
+    question: "How does the new 48-team FIFA World Cup 2026 format work?"
+  },
+  {
+    label: "🌎 Host Cities",
+    question: "Which cities across the USA, Canada, and Mexico are hosting World Cup matches?"
+  },
+  {
+    label: "⚽ Today's Fixtures",
+    question: "Show today's FIFA World Cup 2026 match schedule."
+  },
+  {
+    label: "🇦🇷 Argentina",
+    question: "Analyze Argentina's chances of winning the 2026 World Cup."
+  },
+  {
+    label: "🇧🇷 Brazil",
+    question: "Who are Brazil's key players for the 2026 World Cup?"
+  },
+  {
+    label: "🇫🇷 France",
+    question: "Can France reach another World Cup final in 2026?"
+  },
+  {
+    label: "🇪🇸 Spain",
+    question: "What is Spain's expected lineup for the 2026 tournament?"
+  },
+  {
+    label: "📊 Group Stage",
+    question: "How many teams advance from each group in the 2026 World Cup?"
+  },
+  {
+    label: "🔥 Golden Boot",
+    question: "Who are the favorites to win the Golden Boot in 2026?"
+  },
+  {
+    label: "🚀 Dark Horses",
+    question: "Which teams could be the biggest surprise packages in the 2026 World Cup?"
+  },
+  {
+    label: "🏟️ Final Venue",
+    question: "Which stadium will host the FIFA World Cup 2026 Final?"
+  },
+  {
+    label: "🎯 Predictions",
+    question: "Predict the semifinalists for the 2026 FIFA World Cup."
+  }
+];
+
+// Helper function to pick 3 unique random items
+function getRandomSuggestions(pool) {
+  const shuffled = [...pool].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, 3);
+}
+
 // ─── Stat/Bullet Renderer ─────────────────────────────────────
-// Tailored for sports stats, match summaries, and tournament data
 function BotMessage({ text }) {
   const lines = text
     .split(/•/)
@@ -50,76 +107,62 @@ function BotMessage({ text }) {
   );
 }
 
-// ─── Follow-Up Chip Generator ─────────────────────────────────
+// ─── Follow-Up Chip Generator (2026 World Cup Real-Time Intent) ───
 function generateFollowUps(userQuestion, botReply) {
-  const q = (userQuestion + " " + botReply).toLowerCase();
+  const q = `${userQuestion} ${botReply}`.toLowerCase();
 
-  if (q.includes("mbappe") || q.includes("mbappé"))
+  if (q.includes("usa") || q.includes("united states") || q.includes("mexico") || q.includes("canada")) {
     return [
-      "How many goals did Mbappé score in 2022?",
-      "Compare Mbappé vs Messi at the 2022 final",
-      "What clubs has Mbappé played for?",
+      "What stadium is hosting the 2026 Final?",
+      "Check Group A fixtures for Team Mexico",
+      "When is the next USMNT group stage game?",
     ];
-  if (q.includes("messi") || q.includes("argentina"))
+  }
+  if (q.includes("group") || q.includes("format") || q.includes("bracket") || q.includes("standings")) {
     return [
-      "How did Argentina beat France in the final?",
-      "Messi's complete World Cup goal record",
-      "Argentina's best players in 2022",
+      "How do the best 3rd-place teams qualify for the Round of 32?",
+      "Show all 12 groups from Group A to L",
+      "How many total games does it take to win the 2026 title?",
     ];
-  if (q.includes("final") || q.includes("penalty"))
+  }
+  if (q.includes("rule") || q.includes("referee") || q.includes("var") || q.includes("countdown") || q.includes("card")) {
     return [
-      "Who scored in the 2022 World Cup final?",
-      "Full penalty shootout breakdown",
-      "Greatest World Cup finals of all time",
+      "Explain the new 5-second countdown rule for restarts",
+      "What is the 10-second substitution limit rule?",
+      "How are yellow cards wiped in the 2026 knockout rounds?",
     ];
-  if (q.includes("group") || q.includes("standings") || q.includes("qualify"))
+  }
+  if (q.includes("argentina") || q.includes("brazil") || q.includes("france") || q.includes("england") || q.includes("spain")) {
     return [
-      "Who were the biggest upsets in the group stage?",
-      "Which teams were eliminated in the group stage?",
-      "Top goalscorers from the group stage",
+      "Who are the favorites in Group J with Argentina?",
+      "Analyze France's Group I schedule against Senegal and Norway",
+      "Show Spain's upcoming fixture list",
     ];
-  if (
-    q.includes("england") ||
-    q.includes("france") ||
-    q.includes("netherlands")
-  )
+  }
+  if (q.includes("upset") || q.includes("qualified") || q.includes("debut") || q.includes("points")) {
     return [
-      "How far did England go in 2022?",
-      "France's road to the final",
-      "Netherlands' best World Cup performances",
+      "Which teams are making their World Cup debut in 2026?",
+      "What are the group stage tiebreaker rules for equal points?",
+      "Predict the biggest group stage underdogs",
     ];
-  if (q.includes("goal") || q.includes("scorer") || q.includes("hat-trick"))
-    return [
-      "Who is the all-time World Cup top scorer?",
-      "Any hat-tricks scored at 2022 World Cup?",
-      "Golden Boot winners since 2006",
-    ];
-  if (
-    q.includes("history") ||
-    q.includes("winner") ||
-    q.includes("champion")
-  )
-    return [
-      "Which country has won the most World Cups?",
-      "First ever FIFA World Cup winner",
-      "Biggest World Cup upsets in history",
-    ];
+  }
 
-  // Generic fallbacks
   return [
-    "Who was the best goalkeeper at 2022 World Cup?",
-    "Surprise teams that reached the knockout rounds?",
-    "What is the VAR controversy from 2022?",
+    "Which 16 cities are hosting matches across North America?",
+    "How does the new Round of 32 single-elimination bracket work?",
+    "Show today's active 2026 match timeline",
   ];
 }
 
 // ─── Main GoalScore AI ────────────────────────────────────────
 export default function Chat() {
-  // ── Internal state — no props needed ──
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [followUps, setFollowUps] = useState([]);
+  
+  // Dynamic starter suggestions state
+  const [suggestions, setSuggestions] = useState([]);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -128,17 +171,30 @@ export default function Chat() {
   const inputRef = useRef(null);
   const hasPopulated = useRef(false);
 
-  // ── Focus helper — uses rAF to restore focus after paint ──
   const focusInput = useCallback(() => {
     requestAnimationFrame(() => inputRef.current?.focus());
   }, []);
 
-  // Auto-focus on mount
   useEffect(() => {
     focusInput();
   }, [focusInput]);
 
-  // Handle pre-filled prompt from route state (runs once)
+  // Initial seed for suggestions on mount
+  useEffect(() => {
+    setSuggestions(getRandomSuggestions(defaultQuestions));
+  }, []);
+
+  // Bonus Rotation Feature: Rotates questions every 15s only when messages array is empty
+  useEffect(() => {
+    if (messages.length > 0) return;
+
+    const interval = setInterval(() => {
+      setSuggestions(getRandomSuggestions(defaultQuestions));
+    }, 15000);
+
+    return () => clearInterval(interval);
+  }, [messages.length]);
+
   useEffect(() => {
     if (location.state?.initialPrompt && !hasPopulated.current) {
       setInput(location.state.initialPrompt);
@@ -147,12 +203,10 @@ export default function Chat() {
     }
   }, [location.state, navigate, location.pathname]);
 
-  // ── Auto-scroll to bottom whenever messages or loading changes ──
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
 
-  // ── Send message ──────────────────────────────────────────────
   const sendMessage = async () => {
     const trimmed = input.trim();
     if (!trimmed || loading) return;
@@ -164,7 +218,7 @@ export default function Chat() {
     setInput("");
     setFollowUps([]);
     setLoading(true);
-    focusInput(); // Restore focus immediately after sending
+    focusInput();
 
     try {
       const res = await fetch("http://localhost:5000/api/chat", {
@@ -178,11 +232,7 @@ export default function Chat() {
       }
 
       const data = await res.json();
-
-      // Graceful fallback if reply field is missing
-      const botReply =
-        data.reply ||
-        "VAR Review: The assistant returned an empty response. Please try again.";
+      const botReply = data.reply || "VAR Review: The assistant returned an empty response. Please try again.";
 
       setFollowUps(generateFollowUps(trimmed, botReply));
       setMessages([
@@ -202,11 +252,10 @@ export default function Chat() {
       ]);
     } finally {
       setLoading(false);
-      focusInput(); // Restore focus after AI responds (or on error)
+      focusInput();
     }
   };
 
-  // Enter → send, Shift+Enter → newline
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -214,16 +263,14 @@ export default function Chat() {
     }
   };
 
-  // Chip click: populate input and restore focus
   const handleFollowUp = (suggestion) => {
     setInput(suggestion);
     setFollowUps([]);
     focusInput();
   };
 
-  // Send button: use onMouseDown + preventDefault to avoid stealing focus
   const handleSendMouseDown = (e) => {
-    e.preventDefault(); // Keeps focus on textarea
+    e.preventDefault();
   };
 
   return (
@@ -238,73 +285,50 @@ export default function Chat() {
           <div className="chat-header-info">
             <div className="chat-header-name">GoalScore AI</div>
             <div className="chat-header-status live-indicator">
-              <span className="live-dot" /> World Cup Intel Hub
+              <span className="live-dot" /> 2026 Intel Arena Hub
             </div>
           </div>
-          <div className="header-match-badge">LIVE STATS</div>
         </div>
 
         {/* ── Messages Arena ── */}
         <div className="chat-box pitch-bg">
-          {/* Empty state shown before any conversation starts */}
           {messages.length === 0 && (
             <div className="empty-state stadium-kickoff">
               <div className="empty-state-icon trophy-pulse">🏆</div>
-              <div className="empty-state-title">Welcome to the Arena</div>
-              <div className="empty-state-sub">
-                Ask about World Cup match analysis, historical stats, line-ups,
-                or predictions.
-              </div>
+              <div className="empty-state-title">Welcome to the 2026 Arena</div>
+              <div className="empty-state-sub"></div>
+              
+              {/* ── Dynamic Kickoff Suggestions ── */}
               <div className="kickoff-suggestions">
-                <button
-                  onClick={() => setInput("Who won the 1970 World Cup?")}
-                  className="suggest-btn"
-                  aria-label="Suggest prompt: Who won the 1970 World Cup?"
-                >
-                  1970 Winner? 🏅
-                </button>
-                <button
-                  onClick={() =>
-                    setInput("Show top goalscorers tournament record")
-                  }
-                  className="suggest-btn"
-                  aria-label="Suggest prompt: Show top goalscorers tournament record"
-                >
-                  Top Scorers 👟
-                </button>
+                {suggestions.map((item, index) => (
+                  <button
+                    key={`${item.label}-${index}`}
+                    onClick={() => setInput(item.question)}
+                    className="suggest-btn"
+                    aria-label={`Suggest prompt: ${item.label}`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
               </div>
             </div>
           )}
 
-          {/* Message list */}
           {messages.map((msg, i) => (
             <div key={i}>
-              {/* Divider shown once before the first message */}
               {i === 0 && (
                 <div className="date-divider matchday-divider">
-                  <span>Matchday Timeline</span>
+                  <span>2026 Matchday Timeline</span>
                 </div>
               )}
 
-              <div
-                className={`message ${
-                  msg.sender === "user" ? "home-team" : "away-team"
-                }`}
-              >
-                <div
-                  className="msg-avatar"
-                  role="img"
-                  aria-label={msg.sender}
-                >
+              <div className={`message ${msg.sender === "user" ? "home-team" : "away-team"}`}>
+                <div className="msg-avatar" role="img" aria-label={msg.sender}>
                   {msg.sender === "user" ? "🏃‍♂️" : "🤖"}
                 </div>
 
                 <div className="msg-bubble-container">
-                  <div
-                    className={`bubble ${msg.sender}-bubble ${
-                      msg.isError ? "red-card" : ""
-                    }`}
-                  >
+                  <div className={`bubble ${msg.sender}-bubble ${msg.isError ? "red-card" : ""}`}>
                     {msg.sender === "bot" ? (
                       <BotMessage text={msg.text} />
                     ) : (
@@ -314,7 +338,6 @@ export default function Chat() {
 
                   <div className="msg-time match-minute">{msg.time}</div>
 
-                  {/* Follow-up chips — only beneath the latest bot message */}
                   {msg.sender === "bot" &&
                     i === messages.length - 1 &&
                     followUps.length > 0 &&
@@ -337,14 +360,10 @@ export default function Chat() {
             </div>
           ))}
 
-          {/* Typing indicator while awaiting bot response */}
           {loading && (
             <div className="message away-team">
               <div className="msg-avatar">🤖</div>
-              <div
-                className="bubble bot-bubble typing-indicator"
-                aria-label="AI is typing"
-              >
+              <div className="bubble bot-bubble typing-indicator" aria-label="AI analyzing data">
                 <span className="pitch-dot" />
                 <span className="pitch-dot" />
                 <span className="pitch-dot" />
@@ -352,7 +371,6 @@ export default function Chat() {
             </div>
           )}
 
-          {/* Scroll anchor */}
           <div ref={chatEndRef} />
         </div>
 
@@ -364,14 +382,14 @@ export default function Chat() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Ask about match analysis, stats, predictions..."
+              placeholder="Ask anything about FIFA World Cup 2026..."
               className="chat-input"
               rows="2"
               disabled={loading}
               aria-label="Ask GoalScore AI"
             />
             <button
-              onMouseDown={handleSendMouseDown} // Prevents focus loss on click
+              onMouseDown={handleSendMouseDown}
               onClick={sendMessage}
               disabled={loading || !input.trim()}
               className="send-btn"

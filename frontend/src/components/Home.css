@@ -1,5 +1,5 @@
 .home-container {
-  padding: 12px 0;
+  padding: 12px 16px;
   max-width: 1200px;
   margin: 0 auto;
   animation: fadeIn 0.5s ease-out;
@@ -952,35 +952,62 @@
 /* RESPONSIVE OVERRIDES */
 @media (max-width: 768px) {
   .featured-card {
-    padding: 20px;
+    padding: 24px 16px;
   }
+  
+  /* Fix layout flow to use a balanced 3-row grid setup on mobile */
   .featured-match-core {
-    flex-wrap: wrap;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    justify-items: center;
+    text-align: center;
   }
+
   .featured-team {
-    flex: 0 1 100%;
+    width: 100%;
   }
+
+  /* Keeps the time/score centered between Home and Away instead of forcing top */
   .featured-center {
-    flex: 0 1 100%;
-    order: -1;
-    margin-bottom: 12px;
+    width: 100%;
+    min-width: unset;
+    order: 0; /* Changed from -1 to let it flow naturally in order */
+    padding: 8px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
   }
+
+  .featured-team.away {
+    order: 1; /* Ensures away team follows under the time/score stack */
+  }
+
   .featured-footer {
     justify-content: center;
     text-align: center;
+    flex-direction: column;
+    gap: 16px;
   }
+
+  .featured-ai-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
   .match-grid {
     grid-template-columns: 1fr;
   }
+
   .action-grid {
     grid-template-columns: repeat(2, 1fr) !important;
     gap: 12px;
   }
+
   .action-button {
     padding: 16px 12px;
     font-size: 0.85rem;
   }
+
   .action-icon {
     font-size: 1.8rem;
   }
@@ -990,12 +1017,32 @@
   .action-grid {
     grid-template-columns: 1fr !important;
   }
+
   .fixture-card {
     padding: 14px 16px;
   }
+
+  .fixture-main-row {
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .fixture-team, .fixture-team.away {
+    justify-content: center;
+    text-align: center;
+    flex-direction: row;
+    width: 100%;
+  }
+
+  .fixture-info {
+    margin: 4px 0;
+  }
+
   .fixture-team .team-name {
     font-size: 0.85rem;
   }
+
   .fixture-time {
     font-size: 0.85rem;
   }

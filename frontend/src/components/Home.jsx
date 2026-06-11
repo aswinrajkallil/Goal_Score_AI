@@ -3,36 +3,17 @@ import "./Home.css";
 import TeamFlag from "./TeamFlag";
 import { useState } from "react";
 
-function Home({ fixtures = [], liveMatches = [], loading = true, error = null, refreshFixtures }) {
+function Home({ 
+  fixtures = [], 
+  liveMatches = [], 
+  standingsData = {}, // Dynamic standings data passed as a prop
+  loading = true, 
+  error = null, 
+  refreshFixtures 
+}) {
   const navigate = useNavigate();
-  const [selectedGroup, setSelectedGroup] = useState("A");
-
-  const standingsData = {
-    A: [
-      { team: "Netherlands", points: 7, gd: 4 },
-      { team: "Senegal", points: 6, gd: 1 },
-      { team: "Ecuador", points: 4, gd: 1 },
-      { team: "Qatar", points: 0, gd: -6 },
-    ],
-    B: [
-      { team: "England", points: 7, gd: 7 },
-      { team: "USA", points: 5, gd: 1 },
-      { team: "Iran", points: 3, gd: -3 },
-      { team: "Wales", points: 1, gd: -5 },
-    ],
-    C: [
-      { team: "Argentina", points: 9, gd: 3 },
-      { team: "Poland", points: 4, gd: 0 },
-      { team: "Mexico", points: 4, gd: -1 },
-      { team: "Saudi Arabia", points: 3, gd: -2 },
-    ],
-    D: [
-      { team: "France", points: 7, gd: 3 },
-      { team: "Australia", points: 6, gd: -1 },
-      { team: "Tunisia", points: 4, gd: 0 },
-      { team: "Denmark", points: 1, gd: -2 },
-    ],
-  };
+  const groups = Object.keys(standingsData);
+  const [selectedGroup, setSelectedGroup] = useState(groups[0] || "A");
 
   const quickActions = [
     {
@@ -47,7 +28,7 @@ function Home({ fixtures = [], liveMatches = [], loading = true, error = null, r
     },
     {
       label: "Qualification Predictions",
-      prompt: "Predict which teams are likely to qualify from the group stage of the 2026 World Cup.",
+      prompt: "Predict which teams are likely to qualify from the group stage of the World Cup.",
       icon: "🏆",
     },
     {
@@ -67,7 +48,7 @@ function Home({ fixtures = [], liveMatches = [], loading = true, error = null, r
     },
     {
       label: "Tournament Overview",
-      prompt: "Give me a high-level overview of the FIFA World Cup 2026 groups and tournament structure.",
+      prompt: "Give me a high-level overview of the FIFA World Cup groups and tournament structure.",
       icon: "🌎",
     },
     {
@@ -377,71 +358,73 @@ function Home({ fixtures = [], liveMatches = [], loading = true, error = null, r
         )}
       </section>
 
-      <section className="section" aria-labelledby="standings-heading">
-        <div className="section-header">
-          <h2>📊 Group Standings Preview</h2>
-          <p className="section-subtitle">Top teams in Group stage qualifiers</p>
-        </div>
-
-        <div className="group-selector" role="tablist" aria-label="Select Standings Group">
-          {Object.keys(standingsData).map((group) => (
-            <button
-              key={group}
-              role="tab"
-              aria-selected={selectedGroup === group}
-              className={`group-btn ${selectedGroup === group ? "active" : ""}`}
-              onClick={() => setSelectedGroup(group)}
-            >
-              Group {group}
-            </button>
-          ))}
-        </div>
-
-        <div className="standings-preview">
-          {standingsData[selectedGroup].map((team, index) => (
-            <div
-              className={`standing-row ${index < 2 ? "qualified" : ""}`}
-              key={team.team}
-            >
-              <div className="rank">
-                <span className="rank-badge">{index + 1}</span>
-              </div>
-              <div className="team-info">
-                <TeamFlag teamName={team.team} className="preview-flag" />
-                <span className="team-name">{team.team}</span>
-                {index < 2 && (
-                  <span className="q-badge" aria-label="Qualified for Knockouts">Q</span>
-                )}
-              </div>
-              <div className="points-col">
-                <span className="gd-value" data-pos={team.gd > 0} data-neg={team.gd < 0}>
-                  {team.gd > 0 ? `+${team.gd}` : team.gd} GD
-                </span>
-                <span className="points-value">{team.points}</span>
-                <span className="points-label">pts</span>
-              </div>
-            </div>
-          ))}
-
-          <div className="legend standings-preview-footer">
-            <div className="legend-item qualified">
-              <span className="legend-indicator"></span>
-              <span>Knockout Stage Qualification (Top 2)</span>
-            </div>
-
-            <button
-              className="standings-ai-btn"
-              onClick={() =>
-                handleQuickAction(
-                  `Analyze the current group standings and scenarios for Group ${selectedGroup} of the World Cup. Predict which teams are likely to qualify for the round of 16 and explain why.`
-                )
-              }
-            >
-              🤖 Group {selectedGroup} Scenarios & Predictions
-            </button>
+      {groups.length > 0 && (
+        <section className="section" aria-labelledby="standings-heading">
+          <div className="section-header">
+            <h2>📊 Group Standings Preview</h2>
+            <p className="section-subtitle">Top teams in Group stage qualifiers</p>
           </div>
-        </div>
-      </section>
+
+          <div className="group-selector" role="tablist" aria-label="Select Standings Group">
+            {groups.map((group) => (
+              <button
+                key={group}
+                role="tab"
+                aria-selected={selectedGroup === group}
+                className={`group-btn ${selectedGroup === group ? "active" : ""}`}
+                onClick={() => setSelectedGroup(group)}
+              >
+                Group {group}
+              </button>
+            ))}
+          </div>
+
+          <div className="standings-preview">
+            {standingsData[selectedGroup]?.map((team, index) => (
+              <div
+                className={`standing-row ${index < 2 ? "qualified" : ""}`}
+                key={team.team}
+              >
+                <div className="rank">
+                  <span className="rank-badge">{index + 1}</span>
+                </div>
+                <div className="team-info">
+                  <TeamFlag teamName={team.team} className="preview-flag" />
+                  <span className="team-name">{team.team}</span>
+                  {index < 2 && (
+                    <span className="q-badge" aria-label="Qualified for Knockouts">Q</span>
+                  )}
+                </div>
+                <div className="points-col">
+                  <span className="gd-value" data-pos={team.gd > 0} data-neg={team.gd < 0}>
+                    {team.gd > 0 ? `+${team.gd}` : team.gd} GD
+                  </span>
+                  <span className="points-value">{team.points}</span>
+                  <span className="points-label">pts</span>
+                </div>
+              </div>
+            ))}
+
+            <div className="legend standings-preview-footer">
+              <div className="legend-item qualified">
+                <span className="legend-indicator"></span>
+                <span>Knockout Stage Qualification (Top 2)</span>
+              </div>
+
+              <button
+                className="standings-ai-btn"
+                onClick={() =>
+                  handleQuickAction(
+                    `Analyze the current group standings and scenarios for Group ${selectedGroup} of the World Cup. Predict which teams are likely to qualify for the round of 16 and explain why.`
+                  )
+                }
+              >
+                🤖 Group {selectedGroup} Scenarios & Predictions
+              </button>
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className="section" aria-labelledby="ai-heading">
         <div className="section-header">

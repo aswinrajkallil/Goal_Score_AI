@@ -7,9 +7,8 @@ function Fixtures({ fixtures = [], loading = true, error = "", refreshFixtures }
   const location = useLocation();
   const navigate = useNavigate();
   const selectedFixtureId = location.state?.selectedFixture;
-  const [filterStatus, setFilterStatus] = useState("all"); // all, live, scheduled, finished
+  const [filterStatus, setFilterStatus] = useState("all");
 
-  // Scroll to selected fixture when loading finishes
   useEffect(() => {
     if (!loading && selectedFixtureId && fixtures.length > 0) {
       const timer = setTimeout(() => {
@@ -26,15 +25,9 @@ function Fixtures({ fixtures = [], loading = true, error = "", refreshFixtures }
     const status = fixture.strStatus ? fixture.strStatus.toLowerCase() : "";
     const progress = fixture.strProgress ? fixture.strProgress.toLowerCase() : "";
 
-    if (status === "live" || progress.includes("'")) {
-      return { text: "LIVE", type: "live" };
-    }
-    if (status === "half time" || status === "ht" || status === "halftime") {
-      return { text: "HT", type: "halftime" };
-    }
-    if (status === "full time" || status === "finished" || status === "ft") {
-      return { text: "FT", type: "finished" };
-    }
+    if (status === "live" || progress.includes("'")) return { text: "LIVE", type: "live" };
+    if (status === "half time" || status === "ht" || status === "halftime") return { text: "HT", type: "halftime" };
+    if (status === "full time" || status === "finished" || status === "ft") return { text: "FT", type: "finished" };
     return { text: "SCHEDULED", type: "scheduled" };
   };
 
@@ -68,69 +61,31 @@ function Fixtures({ fixtures = [], loading = true, error = "", refreshFixtures }
       <div className="page-header">
         <h1>📅 World Cup Fixtures</h1>
         <p className="header-subtitle">
-          {!loading && !error && (
-            `${filteredFixtures.length} match${filteredFixtures.length !== 1 ? "es" : ""} found`
-          )}
+          {!loading && !error && `${filteredFixtures.length} match${filteredFixtures.length !== 1 ? "es" : ""} found`}
           {loading && "Loading fixtures database..."}
         </p>
       </div>
 
       <div className="filter-tabs" role="tablist" aria-label="Filter Match Status">
-        <button
-          className={`filter-tab ${filterStatus === "all" ? "active" : ""}`}
-          onClick={() => setFilterStatus("all")}
-          role="tab"
-          aria-selected={filterStatus === "all"}
-        >
-          All ({fixtures.length})
-        </button>
-        <button
-          className={`filter-tab ${filterStatus === "live" ? "active" : ""}`}
-          onClick={() => setFilterStatus("live")}
-          role="tab"
-          aria-selected={filterStatus === "live"}
-        >
-          Live (
-          {
-            fixtures.filter(
-              (f) =>
-                f.strStatus?.toLowerCase() === "live" ||
-                f.strProgress?.includes("'")
-            ).length
-          }
-          )
-        </button>
-        <button
-          className={`filter-tab ${filterStatus === "scheduled" ? "active" : ""}`}
-          onClick={() => setFilterStatus("scheduled")}
-          role="tab"
-          aria-selected={filterStatus === "scheduled"}
-        >
-          Scheduled (
-          {
-            fixtures.filter(
-              (f) => getStatusBadge(f).type === "scheduled"
-            ).length
-          }
-          )
-        </button>
-        <button
-          className={`filter-tab ${filterStatus === "finished" ? "active" : ""}`}
-          onClick={() => setFilterStatus("finished")}
-          role="tab"
-          aria-selected={filterStatus === "finished"}
-        >
-          Finished (
-          {
-            fixtures.filter(
-              (f) => {
-                const s = getStatusBadge(f);
-                return s.type === "finished" || s.type === "halftime";
-              }
-            ).length
-          }
-          )
-        </button>
+        {["all", "live", "scheduled", "finished"].map((tab) => (
+          <button
+            key={tab}
+            className={`filter-tab ${filterStatus === tab ? "active" : ""}`}
+            onClick={() => setFilterStatus(tab)}
+            role="tab"
+            aria-selected={filterStatus === tab}
+          >
+            {tab.charAt(0).toUpperCase() + tab.slice(1)} (
+            {tab === "all"
+              ? fixtures.length
+              : tab === "live"
+              ? fixtures.filter((f) => f.strStatus?.toLowerCase() === "live" || f.strProgress?.includes("'")).length
+              : tab === "scheduled"
+              ? fixtures.filter((f) => getStatusBadge(f).type === "scheduled").length
+              : fixtures.filter((f) => ["finished", "halftime"].includes(getStatusBadge(f).type)).length}
+            )
+          </button>
+        ))}
       </div>
 
       {loading ? (
@@ -163,6 +118,7 @@ function Fixtures({ fixtures = [], loading = true, error = "", refreshFixtures }
             const homeCode = fixture.strHomeTeam?.substring(0, 3).toUpperCase();
             const awayCode = fixture.strAwayTeam?.substring(0, 3).toUpperCase();
             const displayTime = fixture.strTime ? fixture.strTime.substring(0, 5) : "TBD";
+            const isLiveOrFinished = status.type === "live" || status.type === "finished" || status.type === "halftime";
 
             return (
               <div
@@ -170,7 +126,7 @@ function Fixtures({ fixtures = [], loading = true, error = "", refreshFixtures }
                 key={fixture.idEvent}
                 id={`fixture-${fixture.idEvent}`}
               >
-                {/* Event Thumbnail Banner */}
+                {/* Thumbnail Banner */}
                 {fixture.strThumb && (
                   <div className="fixture-thumbnail-container">
                     <img src={fixture.strThumb} alt="" className="fixture-thumbnail" loading="lazy" />
@@ -180,11 +136,10 @@ function Fixtures({ fixtures = [], loading = true, error = "", refreshFixtures }
                   </div>
                 )}
 
+                {/* Status + Group badges */}
                 <div className="fixture-header">
                   <div className="badge-row">
-                    <span className="status-badge" data-status={status.type}>
-                      {status.text}
-                    </span>
+                    <span className="status-badge" data-status={status.type}>{status.text}</span>
                     {fixture.strGroup && (
                       <span className="group-badge">Group {fixture.strGroup}</span>
                     )}
@@ -194,7 +149,10 @@ function Fixtures({ fixtures = [], loading = true, error = "", refreshFixtures }
                   )}
                 </div>
 
+                {/* ── MATCH ROW ── */}
                 <div className="fixture-match">
+
+                  {/* HOME TEAM */}
                   <div className="fixture-team home">
                     <div className="team-flag-badges">
                       <TeamFlag teamName={fixture.strHomeTeam} className="fixture-flag" />
@@ -204,33 +162,55 @@ function Fixtures({ fixtures = [], loading = true, error = "", refreshFixtures }
                     </div>
                     <div className="team-details">
                       <span className="team-name">{fixture.strHomeTeam}</span>
-                      <span className="team-code">{fixture.strHomeTeam?.substring(0, 3).toUpperCase()}</span>
+                      <span className="team-code">{homeCode}</span>
                     </div>
                   </div>
 
+                  {/* CENTER BLOCK */}
                   <div className="fixture-score">
+
+                    {/* Desktop: large score or dash */}
                     <div className="score-display">
                       <span className="score-home">{fixture.intHomeScore ?? "-"}</span>
                       <span className="score-separator">-</span>
                       <span className="score-away">{fixture.intAwayScore ?? "-"}</span>
                     </div>
+
+                    {/* Desktop: date + time below score */}
                     <div className="match-info">
                       <p className="match-date">{fixture.dateEvent}</p>
-                      <p className="match-time">{fixture.strTime ? fixture.strTime.substring(0, 5) : "TBD"}</p>
+                      <p className="match-time">{displayTime}</p>
                     </div>
-                    {/* Mobile-centered compact bar: visible only on small screens */}
-                    <div className="fixture-mobile-bar" aria-hidden={!fixture}>
-                      <span className="mobile-team-code">{homeCode}</span>
-                      <span className="mobile-vs">VS</span>
-                      <span className="mobile-team-code">{awayCode}</span>
+
+                    {/*
+                      MOBILE BAR — replaces score+time on small screens.
+                      Structure:
+                        [HOME_CODE]  [VS or score]  [AWAY_CODE]
+                                      [time]
+                    */}
+                    <div className="fixture-mobile-bar">
+                      <div className="mobile-codes-row">
+                        <span className="mobile-team-code">{homeCode}</span>
+
+                        {isLiveOrFinished ? (
+                          <span className="mobile-score">
+                            {fixture.intHomeScore ?? "-"} - {fixture.intAwayScore ?? "-"}
+                          </span>
+                        ) : (
+                          <span className="mobile-vs">VS</span>
+                        )}
+
+                        <span className="mobile-team-code">{awayCode}</span>
+                      </div>
                       <span className="mobile-time">{displayTime}</span>
                     </div>
                   </div>
 
+                  {/* AWAY TEAM */}
                   <div className="fixture-team away">
                     <div className="team-details">
                       <span className="team-name">{fixture.strAwayTeam}</span>
-                      <span className="team-code">{fixture.strAwayTeam?.substring(0, 3).toUpperCase()}</span>
+                      <span className="team-code">{awayCode}</span>
                     </div>
                     <div className="team-flag-badges">
                       {fixture.strAwayTeamBadge && (
@@ -239,52 +219,42 @@ function Fixtures({ fixtures = [], loading = true, error = "", refreshFixtures }
                       <TeamFlag teamName={fixture.strAwayTeam} className="fixture-flag" />
                     </div>
                   </div>
-                </div>
 
+                </div>
+                {/* end .fixture-match */}
+
+                {/* Footer */}
                 <div className="fixture-footer">
                   <div className="stadium-info">
                     <span className="icon">🏟️</span>
                     <span className="stadium">
-                      {fixture.strVenue ? fixture.strVenue : "Stadium TBA"}
+                      {fixture.strVenue || "Stadium TBA"}
                       {fixture.strCity && `, ${fixture.strCity}`}
                       {fixture.strCountry && ` (${fixture.strCountry})`}
                     </span>
                   </div>
-
                   {fixture.strVideo && (
                     <a
                       href={fixture.strVideo}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="highlights-btn"
-                      aria-label={`Watch highlights for ${fixture.strHomeTeam} versus ${fixture.strAwayTeam}`}
+                      aria-label={`Watch highlights for ${fixture.strHomeTeam} vs ${fixture.strAwayTeam}`}
                     >
                       📺 Highlights
                     </a>
                   )}
                 </div>
 
-                {/* AI Analyst Actions */}
+                {/* AI Actions */}
                 <div className="fixture-ai-command-bar">
-                  <button
-                    className="fixture-ai-action-btn"
-                    onClick={() => handleAIAction(fixture, "analyze")}
-                    aria-label="Analyze Match with AI"
-                  >
+                  <button className="fixture-ai-action-btn" onClick={() => handleAIAction(fixture, "analyze")}>
                     📊 Analyze Match
                   </button>
-                  <button
-                    className="fixture-ai-action-btn"
-                    onClick={() => handleAIAction(fixture, "predict")}
-                    aria-label="Predict Outcome with AI"
-                  >
+                  <button className="fixture-ai-action-btn" onClick={() => handleAIAction(fixture, "predict")}>
                     🔮 Predict Outcome
                   </button>
-                  <button
-                    className="fixture-ai-action-btn"
-                    onClick={() => handleAIAction(fixture, "context")}
-                    aria-label="Explain Match Context with AI"
-                  >
+                  <button className="fixture-ai-action-btn" onClick={() => handleAIAction(fixture, "context")}>
                     🧠 Explain Context
                   </button>
                 </div>

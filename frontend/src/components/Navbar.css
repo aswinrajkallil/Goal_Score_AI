@@ -1,3 +1,6 @@
+/* ==========================================================================
+   BASE NAVBAR STYLES (Desktop First)
+   ========================================================================== */
 .navbar {
   position: sticky;
   top: 0;
@@ -12,6 +15,7 @@
     0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
+/* Cyber accent line underneath the navbar */
 .navbar::after {
   content: "";
   position: absolute;
@@ -27,9 +31,9 @@
   );
 }
 
-/* ===========================
+/* ==========================================================================
    CONTAINER
-=========================== */
+   ========================================================================== */
 .navbar-container {
   width: 100%;
   max-width: 1400px;
@@ -39,22 +43,22 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  position: relative; /* allow absolute positioning of hamburger */
+  position: relative;
 }
 
-/* ===========================
+/* ==========================================================================
    LOGO
-=========================== */
+   ========================================================================== */
 .logo {
   display: flex;
   align-items: center;
   gap: 12px;
   text-decoration: none;
-  color: #ffffff; /* Fallback for var(--text-h) if missing */
+  color: #ffffff;
   font-weight: 800;
   transition: all 0.25s ease;
-  min-width: 0; /* allow shrinking on small screens */
-  flex: 1 1 auto;
+  min-width: 0;
+  flex: 0 1 auto;
 }
 
 .logo:hover {
@@ -76,23 +80,18 @@
 }
 
 .logo-highlight {
-  background: linear-gradient(135deg, #ffc107, #ffd166); /* Fallback for var(--warning) */
+  background: linear-gradient(135deg, #ffc107, #ffd166);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-/* ===========================
-   DESKTOP LINKS & HAMBURGER BASE
-=========================== */
+/* ==========================================================================
+   DESKTOP NAVIGATION LINKS
+   ========================================================================== */
 .nav-links {
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-/* CRITICAL FIX: Hide button on desktop viewports */
-.hamburger-btn {
-  display: none;
 }
 
 .nav-link {
@@ -103,18 +102,19 @@
   padding: 12px 18px;
   border-radius: 14px;
   text-decoration: none;
-  color: #a0aec0; /* Fallback for var(--text-secondary) */
+  color: #a0aec0;
   font-size: 0.95rem;
   font-weight: 600;
   transition: all 0.25s ease;
 }
 
 .nav-link:hover {
-  color: #00d4ff; /* Fallback for var(--primary) */
+  color: #00d4ff;
   background: rgba(0, 212, 255, 0.08);
   text-decoration: none;
 }
 
+/* Hover/Active underline decoration */
 .nav-link::after {
   content: "";
   position: absolute;
@@ -138,9 +138,9 @@
   background: rgba(0, 212, 255, 0.12);
 }
 
-/* ===========================
-   CHAT LINK & INDICATORS
-=========================== */
+/* ==========================================================================
+   CHAT LINK & LIVE INDICATORS
+   ========================================================================== */
 .chat-link {
   display: flex;
   align-items: center;
@@ -151,7 +151,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #ff4d6d; /* Fallback for var(--danger) */
+  background: #ff4d6d;
   animation: pulseDot 1.6s infinite;
 }
 
@@ -167,66 +167,91 @@
   animation: pulseLive 1.5s infinite;
 }
 
-/* ===========================
-   MOBILE BACKDROP
-=========================== */
+/* ==========================================================================
+   HAMBURGER BUTTON BASE (Hidden on Desktop)
+   ========================================================================== */
+.hamburger-btn {
+  display: none;
+}
+
+/* ==========================================================================
+   MOBILE BACKDROP OVERLAY
+   ========================================================================== */
 .navbar-backdrop {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(4, 6, 14, 0.6);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
-  z-index: 999; /* Sits right beneath the nav-drawer */
+  z-index: 999;
   animation: fadeIn 0.2s ease-out;
 }
 
-/* ===========================
-   TABLET & RESPONSIVE BREAKPOINT
-=========================== */
+/* ==========================================================================
+   RESPONSIVE BREAKPOINT (TABLET / LAPTOP - Max 1024px)
+   ========================================================================== */
 @media (max-width: 1024px) {
+  /* Reserve safety spacing inside container for absolute hamburger alignment */
+  .navbar-container {
+    padding-right: 72px;
+  }
+
+  /* Target logo length limits safely */
+  .logo-text {
+    max-width: calc(100% - 40px);
+  }
+
+  /* Reveal Hamburger Button */
   .hamburger-btn {
-    display: flex; /* Reveal hamburger on mobile breakpoint */
+    display: flex;
     position: absolute;
     right: 16px;
     top: 50%;
     transform: translateY(-50%);
-    z-index: 1400; /* Ensure it stays above backdrop and nav drawer */
+    z-index: 1400; /* Forces button to sit above overlay panels safely */
     width: 44px;
     height: 44px;
     min-width: 44px;
     min-height: 44px;
     border: 1px solid rgba(0, 212, 255, 0.12);
     border-radius: 10px;
-    background: linear-gradient(180deg, rgba(10,14,39,0.95), rgba(8,12,28,0.9));
+    background: linear-gradient(180deg, rgba(10, 14, 39, 0.95), rgba(8, 12, 28, 0.9));
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
     -webkit-tap-highlight-color: transparent;
   }
 
+  .hamburger-btn:focus {
+    outline: 3px solid rgba(0, 212, 255, 0.25);
+    outline-offset: 2px;
+  }
+
+  /* Hamburger Container Core */
   .hamburger-icon {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     width: 22px;
-    height: 16px;
+    height: 14px; /* Fixed: Prevents squishing elements into dots */
   }
 
+  /* Hamburger Horizontal Lines */
   .hamburger-line {
     width: 100%;
-    height: 3px;
+    height: 2px; /* Clean line thickness configuration */
     background: linear-gradient(90deg, #c8f9ff, #00d4ff);
     border-radius: 999px;
-    transition: transform 0.28s cubic-bezier(.2,.9,.2,1), opacity 0.18s ease, background 0.25s ease;
+    transition: transform 0.28s cubic-bezier(.2, .9, .2, 1), opacity 0.18s ease, background 0.25s ease;
     transform-origin: center;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   }
 
-  /* Hamburger transform animation updates */
+  /* Dynamic State Transforms: Forms a perfect unified 'X' */
   .hamburger-btn.open .hamburger-line:nth-child(1) {
     transform: translateY(6px) rotate(45deg);
     background: linear-gradient(90deg, #00f0ff, #00b8ff);
@@ -234,24 +259,20 @@
 
   .hamburger-btn.open .hamburger-line:nth-child(2) {
     opacity: 0;
+    transform: scaleX(0);
   }
 
   .hamburger-btn.open .hamburger-line:nth-child(3) {
-    transform: translateY(-6px) rotate(-44deg);
+    transform: translateY(-6px) rotate(-45deg);
     background: linear-gradient(90deg, #00f0ff, #00b8ff);
   }
 
-  .hamburger-btn:focus {
-    outline: 3px solid rgba(0, 212, 255, 0.12);
-    outline-offset: 2px;
-  }
-
-  /* Slide-out Menu Panel (use transform for smoother GPU-accelerated animation) */
+  /* Slide-Out Drawer Navigation Panel */
   .nav-links {
     position: fixed;
     top: 72px;
     right: 0;
-    transform: translateX(110%);
+    transform: translateX(110%); /* Keeps drawer hidden off-screen efficiently */
     will-change: transform;
     width: 300px;
     height: calc(100vh - 72px);
@@ -264,10 +285,11 @@
     -webkit-backdrop-filter: blur(24px);
     border-left: 1px solid rgba(0, 212, 255, 0.15);
     box-shadow: -12px 0 40px rgba(0, 0, 0, 0.45);
-    transition: transform 0.32s cubic-bezier(.2,.9,.2,1);
-    z-index: 1200; /* sits above backdrop but below hamburger */
+    transition: transform 0.32s cubic-bezier(.2, .9, .2, 1);
+    z-index: 1200;
   }
 
+  /* Slide-in Action Rule */
   .nav-links.open {
     transform: translateX(0);
   }
@@ -279,26 +301,17 @@
   }
 
   .nav-link::after {
-    display: none;
-  }
-
-  /* Ensure logo doesn't overflow container and leaves space for hamburger */
-  .logo-text {
-    max-width: calc(100% - 120px);
-  }
-
-  /* Ensure the container keeps space on the right for the hamburger */
-  .navbar-container {
-    padding-right: 72px; /* reserve space so logo doesn't push hamburger off-screen */
+    display: none; /* Disables flat horizontal hover text indicators on drawer views */
   }
 }
 
-/* ===========================
-   SMALL MOBILE BREAKPOINTS
-=========================== */
+/* ==========================================================================
+   MOBILE VIEWPORT BREAKPOINT (Max 768px)
+   ========================================================================== */
 @media (max-width: 768px) {
   .navbar-container {
-    padding: 0 12px;
+    padding-left: 16px;
+    padding-right: 64px;
     height: 64px;
   }
 
@@ -316,23 +329,23 @@
   }
 }
 
+/* ==========================================================================
+   TINY HANDHELD DEVICES (Max 480px)
+   ========================================================================== */
 @media (max-width: 480px) {
   .nav-links {
-    width: 85%;
+    width: 85%; /* Menu spans fluidly across tiny screen sizes */
   }
 
   .logo-text {
-    max-width: calc(100% - 100px);
+    max-width: calc(100% - 20px);
     font-size: 1.05rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
 }
 
-/* ===========================
-   ANIMATIONS
-=========================== */
+/* ==========================================================================
+   CORE ANIMATION KEYFRAMES
+   ========================================================================== */
 @keyframes pulseDot {
   0% { box-shadow: 0 0 0 0 rgba(255, 77, 109, 0.6); }
   70% { box-shadow: 0 0 0 8px rgba(255, 77, 109, 0); }

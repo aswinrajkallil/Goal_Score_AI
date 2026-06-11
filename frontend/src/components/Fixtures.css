@@ -1,3 +1,9 @@
+/* ==========================================================================
+   FIXTURES.CSS — Matched to Fixtures.jsx structure
+   Mobile layout: [Flag+Name] [Score/VS | Codes | Time] [Name+Flag]
+   ========================================================================== */
+
+/* ── CONTAINER ── */
 .fixtures-container {
   padding: 12px 0;
   max-width: 1200px;
@@ -6,44 +12,46 @@
 }
 
 .page-header {
-  margin-bottom: 24px;
+  margin-bottom: clamp(16px, 3vw, 24px);
 }
 
 .header-subtitle {
   color: var(--text-secondary);
-  font-size: 0.95rem;
+  font-size: clamp(0.8rem, 2vw, 0.95rem);
   font-weight: 400;
   margin-top: 4px;
 }
 
-/* FILTER TABS */
+/* ── FILTER TABS ── */
 .filter-tabs {
   display: flex;
-  gap: 10px;
-  margin-bottom: 24px;
+  gap: 8px;
+  margin-bottom: clamp(16px, 3vw, 24px);
   flex-wrap: wrap;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   padding-bottom: 12px;
 }
 
 .filter-tab {
-  padding: 10px 20px;
+  padding: clamp(7px, 1.5vw, 10px) clamp(10px, 2.5vw, 20px);
   border: 1px solid var(--glass-border);
   background: rgba(26, 31, 58, 0.4);
   color: var(--text-secondary);
   border-radius: 12px;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: clamp(0.75rem, 2vw, 0.9rem);
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: none;
+  white-space: nowrap;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
 }
 
 .filter-tab:hover {
   color: var(--primary);
   border-color: var(--primary);
   background: rgba(0, 212, 255, 0.05);
-  transform: none;
 }
 
 .filter-tab.active {
@@ -53,67 +61,48 @@
   box-shadow: 0 4px 15px rgba(0, 212, 255, 0.35);
 }
 
-/* SKELETONS */
-.fixtures-skeleton-container {
+/* ── GRID ── */
+.fixtures-grid,
+.fixture-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: clamp(10px, 2vw, 16px);
 }
 
-.fixture-skeleton-card {
-  height: 180px;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.03),
-    rgba(255, 255, 255, 0.08) 50%,
-    rgba(255, 255, 255, 0.03)
-  );
-  background-size: 200% 100%;
-  border: 1px solid var(--glass-border);
-  border-radius: 20px;
-  animation: shimmer 1.5s infinite;
-}
-
-/* GRID & CARDS */
-.fixtures-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
+/* ── FIXTURE CARD ── */
 .fixture-card {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
+  background: var(--glass-bg, rgba(26, 31, 58, 0.5));
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08));
   border-radius: 20px;
-  padding: 20px 24px;
+  padding: clamp(14px, 3vw, 20px) clamp(14px, 3vw, 24px);
   backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   position: relative;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: clamp(10px, 2vw, 14px);
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.fixture-card:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.25);
 }
 
 .fixture-card:hover {
   border-color: rgba(0, 212, 255, 0.3);
   background: rgba(26, 31, 58, 0.85);
-  box-shadow: 
-    0 8px 25px rgba(0, 212, 255, 0.08),
-    var(--shadow-md);
+  box-shadow: 0 8px 25px rgba(0, 212, 255, 0.08), var(--shadow-md);
   transform: translateY(-2px);
 }
 
-/* Status variants */
-.fixture-card.live {
-  border-color: rgba(255, 77, 109, 0.3);
-}
+.fixture-card.live     { border-color: rgba(255, 77, 109, 0.3); }
+.fixture-card.finished { border-color: rgba(0, 255, 149, 0.2); }
 
-.fixture-card.finished {
-  border-color: rgba(0, 255, 149, 0.2);
-}
-
-/* HIGHLIGHTED SELECTED FIXTURE */
 .fixture-card.highlighted-selected {
   border-color: var(--primary);
   background: linear-gradient(135deg, rgba(26, 31, 58, 0.9), rgba(0, 212, 255, 0.06));
@@ -121,35 +110,69 @@
   animation: selection-pulse 2s infinite alternate;
 }
 
-@keyframes selection-pulse {
-  0% {
-    box-shadow: 0 0 15px rgba(0, 212, 255, 0.2);
-    border-color: rgba(0, 212, 255, 0.7);
-  }
-  100% {
-    box-shadow: 0 0 25px rgba(0, 212, 255, 0.4);
-    border-color: var(--primary);
-  }
+/* ── THUMBNAIL BANNER ── */
+.fixture-thumbnail-container {
+  position: relative;
+  width: calc(100% + 48px);
+  margin: -20px -24px 4px -24px;
+  height: 130px;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* HEADER STYLE */
+.fixture-thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.fixture-card:hover .fixture-thumbnail {
+  transform: scale(1.03);
+}
+
+.fixture-thumbnail-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(10, 14, 39, 0.85) 0%, rgba(10, 14, 39, 0.1) 100%);
+  display: flex;
+  align-items: flex-end;
+  padding: 12px 24px;
+}
+
+.fixture-competition-tag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--primary);
+  background: rgba(0, 212, 255, 0.12);
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ── CARD HEADER ── */
 .fixture-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .badge-row {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .status-badge {
   display: inline-block;
   padding: 4px 10px;
   border-radius: 6px;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.5px;
   text-transform: uppercase;
@@ -159,21 +182,17 @@
   background: rgba(255, 77, 109, 0.15);
   color: var(--danger);
   border: 1px solid rgba(255, 77, 109, 0.2);
-  animation: pulse-danger-light 1.2s infinite;
 }
-
 .status-badge[data-status="halftime"] {
   background: rgba(255, 183, 3, 0.15);
   color: var(--warning);
   border: 1px solid rgba(255, 183, 3, 0.2);
 }
-
 .status-badge[data-status="finished"] {
   background: rgba(0, 255, 149, 0.15);
   color: var(--success);
   border: 1px solid rgba(0, 255, 149, 0.2);
 }
-
 .status-badge[data-status="scheduled"] {
   background: rgba(255, 255, 255, 0.05);
   color: var(--text-secondary);
@@ -181,7 +200,7 @@
 }
 
 .group-badge {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
   color: var(--warning);
   background: rgba(255, 183, 3, 0.1);
@@ -192,102 +211,130 @@
 
 .match-minute {
   color: var(--danger);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 700;
   background: rgba(255, 77, 109, 0.1);
   padding: 2px 8px;
   border-radius: 6px;
 }
 
-/* MATCH CORE ROW */
+/* ==========================================================================
+   MATCH ROW — DESKTOP
+   Grid: [home team] [center score block] [away team]
+   ========================================================================== */
 .fixture-match {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
+  gap: 12px;
   width: 100%;
-  gap: 16px;
 }
 
-.fixture-team {
+/* ── HOME TEAM ── */
+.fixture-team.home {
   display: flex;
   align-items: center;
-  gap: 16px;
-  flex: 1;
-}
-
-.fixture-team.home {
+  gap: 10px;
   justify-content: flex-start;
+  min-width: 0;
 }
 
+/* ── AWAY TEAM ── */
 .fixture-team.away {
-  flex-direction: row;
-  justify-content: flex-end;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-direction: row-reverse;
+  justify-content: flex-start;
   text-align: right;
+  min-width: 0;
 }
 
 .team-flag-badges {
   display: flex;
   align-items: center;
-  gap: 8px;
-  position: relative;
+  gap: 5px;
+  flex-shrink: 0;
 }
 
 .fixture-flag {
-  width: 28px !important;
-  height: 18px !important;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.3) !important;
+  width: 26px !important;
+  height: 17px !important;
+  max-width: 26px;
+  object-fit: cover;
+  border-radius: 2px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35) !important;
+  flex-shrink: 0;
 }
 
 .team-crest {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   object-fit: contain;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
+  flex-shrink: 0;
 }
 
 .team-details {
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  flex: 1;
 }
 
 .team-name {
   font-weight: 700;
   color: var(--text-h);
-  font-size: 1.15rem;
+  font-size: 1rem;
   line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .team-code {
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.7rem;
+  font-weight: 700;
   color: var(--text-secondary);
-  opacity: 0.5;
+  opacity: 0.55;
   margin-top: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-/* SCORE SECTION */
+/* ==========================================================================
+   CENTER SCORE BLOCK — DESKTOP
+   Shows: score numbers + date/time below
+   ========================================================================== */
 .fixture-score {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 120px;
+  justify-content: center;
+  min-width: 110px;
+  gap: 4px;
+  text-align: center;
+  flex-shrink: 0;
 }
 
 .score-display {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: 2.1rem;
+  gap: 10px;
+  font-size: 2rem;
   font-weight: 900;
+  line-height: 1;
 }
 
-.score-home, .score-away {
+.score-home,
+.score-away {
   color: var(--text-h);
-  min-width: 36px;
+  min-width: 32px;
   text-align: center;
 }
 
-.fixture-card.live .score-home, .fixture-card.live .score-away {
+.fixture-card.live .score-home,
+.fixture-card.live .score-away {
   color: var(--primary);
   text-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
 }
@@ -296,67 +343,87 @@
   color: var(--text-secondary);
   opacity: 0.3;
   font-weight: 300;
+  font-size: 1.5rem;
 }
 
 .match-info {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 4px;
+  gap: 1px;
+  margin-top: 2px;
 }
 
 .match-date {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: var(--text-secondary);
-  opacity: 0.7;
+  opacity: 0.65;
+  white-space: nowrap;
 }
 
 .match-time {
   font-size: 0.85rem;
   font-weight: 700;
   color: var(--primary);
-  margin-top: 1px;
+  white-space: nowrap;
 }
 
-/* FOOTER */
+/* Mobile bar — hidden on desktop, shown on mobile */
+.fixture-mobile-bar {
+  display: none;
+}
+
+/* ==========================================================================
+   FOOTER
+   ========================================================================== */
 .fixture-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
-  padding-top: 12px;
-  margin-top: 4px;
+  padding-top: 10px;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
 }
 
 .stadium-info {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.85rem;
+  font-size: clamp(0.72rem, 1.8vw, 0.82rem);
   color: var(--text-secondary);
   opacity: 0.85;
+  min-width: 0;
+  flex: 1;
+}
+
+.stadium {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .stadium-info .icon {
-  font-size: 1.1rem;
+  font-size: 1rem;
+  flex-shrink: 0;
 }
 
-/* HIGHLIGHTS BUTTON */
 .highlights-btn {
   background: linear-gradient(135deg, rgba(255, 183, 3, 0.2), rgba(255, 183, 3, 0.05));
   border: 1px solid rgba(255, 183, 3, 0.4);
   color: var(--warning);
   font-weight: 700;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   padding: 6px 14px;
   border-radius: 8px;
   text-decoration: none;
   transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
+  flex-shrink: 0;
+  min-height: 36px;
+  white-space: nowrap;
 }
 
 .highlights-btn:hover {
@@ -364,122 +431,416 @@
   color: #050816;
   border-color: var(--warning);
   box-shadow: 0 4px 15px rgba(255, 183, 3, 0.35);
-  text-decoration: none;
   transform: translateY(-2px);
 }
 
-.highlights-btn:active {
-  transform: translateY(0);
+/* ── AI ACTION BAR ── */
+.fixture-ai-command-bar {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 10px;
 }
 
-/* RESPONSIVE */
+.fixture-ai-action-btn {
+  background: rgba(0, 212, 255, 0.04);
+  border: 1px solid rgba(0, 212, 255, 0.15);
+  color: var(--text-secondary);
+  font-size: clamp(0.7rem, 1.8vw, 0.8rem);
+  font-weight: 600;
+  padding: 8px 6px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  min-height: 38px;
+}
+
+.fixture-ai-action-btn:hover {
+  background: rgba(0, 212, 255, 0.12);
+  border-color: var(--primary);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+/* ── ERROR / EMPTY STATES ── */
+.error-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(255, 77, 109, 0.07);
+  border: 1px solid rgba(255, 77, 109, 0.2);
+  border-radius: 16px;
+  padding: 20px 24px;
+  flex-wrap: wrap;
+}
+
+.error-icon { font-size: 1.5rem; flex-shrink: 0; }
+
+.error-msg-container {
+  flex: 1;
+  min-width: 0;
+}
+
+.error-msg-container h3 {
+  color: var(--danger);
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.error-msg-container p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.retry-btn {
+  background: rgba(255, 77, 109, 0.15);
+  border: 1px solid rgba(255, 77, 109, 0.3);
+  color: var(--danger);
+  font-size: 0.85rem;
+  padding: 8px 16px;
+  border-radius: 10px;
+  min-height: 40px;
+  white-space: nowrap;
+}
+
+.retry-btn:hover {
+  background: rgba(255, 77, 109, 0.25);
+  transform: translateY(-1px);
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px 24px;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.empty-icon { font-size: 2.5rem; }
+
+/* ── SKELETON ── */
+.fixtures-skeleton-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.fixture-skeleton-card {
+  height: 160px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03),
+    rgba(255, 255, 255, 0.07) 50%,
+    rgba(255, 255, 255, 0.03)
+  );
+  background-size: 200% 100%;
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  animation: shimmer 1.5s infinite;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes selection-pulse {
+  0%   { box-shadow: 0 0 15px rgba(0, 212, 255, 0.2); border-color: rgba(0, 212, 255, 0.7); }
+  100% { box-shadow: 0 0 25px rgba(0, 212, 255, 0.4); border-color: var(--primary); }
+}
+
+/* ==========================================================================
+   RESPONSIVE BREAKPOINTS
+   ========================================================================== */
+
+/* ── Tablet ≤ 768px ── */
 @media (max-width: 768px) {
   .fixture-card {
-    padding: 16px 20px;
+    padding: 14px 12px;
+    border-radius: 16px;
   }
 
-  .team-name {
-    font-size: 0.95rem;
+  .fixture-thumbnail-container {
+    width: calc(100% + 24px);
+    margin: -14px -12px 6px -12px;
+    height: 110px;
   }
 
-  .team-crest {
-    width: 26px;
-    height: 26px;
+  .fixture-match {
+    gap: 8px;
+  }
+
+  .fixture-score {
+    min-width: 90px;
   }
 
   .score-display {
     font-size: 1.7rem;
+    gap: 8px;
   }
 
-  .score-home, .score-away {
-    min-width: 28px;
+  .team-name {
+    font-size: 0.9rem;
+  }
+
+  .team-crest { width: 24px; height: 24px; }
+
+  .fixture-flag {
+    width: 22px !important;
+    height: 14px !important;
+  }
+
+  .fixture-ai-command-bar {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+
+  .fixture-ai-action-btn {
+    font-size: 0.68rem;
+    padding: 7px 3px;
+    gap: 3px;
   }
 }
 
-@media (max-width: 580px) {
+/* ==========================================================================
+   MOBILE ≤ 480px
+   Switch center block to: [CODE  VS  CODE] stacked above [time]
+   Hide desktop score-display, show mobile-bar instead
+   Team names visible — show full name, truncate only if truly too long
+   ========================================================================== */
+@media (max-width: 480px) {
+  .fixture-card {
+    padding: 12px 10px;
+    border-radius: 14px;
+    gap: 8px;
+  }
+
+  .fixture-thumbnail-container {
+    width: calc(100% + 20px);
+    margin: -12px -10px 6px -10px;
+    height: 90px;
+  }
+
+  /* Tighten the 3-column grid but keep it intact */
   .fixture-match {
-    flex-wrap: wrap;
-    gap: 14px;
-    justify-content: center;
+    grid-template-columns: 1fr 72px 1fr;
+    gap: 4px;
     align-items: center;
-    flex-direction: column;
   }
 
-  .fixture-team.home,
+  /* ── HOME: flag + name, left-aligned ── */
+  .fixture-team.home {
+    gap: 6px;
+    justify-content: flex-start;
+  }
+
+  /* ── AWAY: name + flag, right-aligned (row-reverse) ── */
   .fixture-team.away {
-    flex: 0 1 100%;
-    justify-content: center;
-    text-align: center;
+    gap: 6px;
+    justify-content: flex-start;
   }
 
-  .fixture-team.away {
-    flex-direction: row;
+  .team-flag-badges {
+    gap: 3px;
   }
 
-  /* Place teams stacked first, then a compact info row with time + VS */
+  .fixture-flag {
+    width: 20px !important;
+    height: 13px !important;
+  }
+
+  .team-crest {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Team name: always visible, truncate only if needed */
+  .team-name {
+    font-size: 0.78rem;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 90px;
+  }
+
+  /* Hide the small code under team name on mobile (we show codes in center) */
+  .team-code {
+    display: none;
+  }
+
+  /* ── CENTER BLOCK on mobile ── */
   .fixture-score {
-    flex: 0 1 100%;
-    order: 2;
-    margin-top: 6px;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    gap: 12px;
-    padding-top: 6px;
-    border-top: 1px solid rgba(255, 255, 255, 0.03);
+    min-width: 68px;
+    gap: 3px;
   }
-  /* Mobile compact center bar connects both teams visually and shows time */
+
+  /* Hide desktop score numbers — use mobile-bar instead */
+  .score-display {
+    display: none;
+  }
+
+  /* Hide desktop date/time — mobile-bar handles time */
+  .match-info {
+    display: none;
+  }
+
+  /* ── MOBILE BAR: CODE | VS | CODE then time below ── */
   .fixture-mobile-bar {
     display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+  }
+
+  /* Top row: HOME_CODE  VS  AWAY_CODE */
+  .fixture-mobile-bar .mobile-codes-row {
+    display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 5px;
     width: 100%;
-    padding-top: 8px;
-    order: 3;
   }
 
   .fixture-mobile-bar .mobile-team-code {
     font-weight: 800;
     color: var(--text-h);
-    font-size: 0.95rem;
-    opacity: 0.95;
-    min-width: 40px;
+    font-size: 0.82rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    min-width: 26px;
     text-align: center;
   }
 
   .fixture-mobile-bar .mobile-vs {
     font-weight: 900;
     color: var(--primary);
-    padding: 4px 8px;
-    border-radius: 8px;
-    background: rgba(0, 212, 255, 0.06);
-    font-size: 0.9rem;
+    font-size: 0.72rem;
+    padding: 2px 6px;
+    border-radius: 6px;
+    background: rgba(0, 212, 255, 0.1);
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    letter-spacing: 1px;
   }
 
+  /* For live/finished: show score instead of VS */
+  .fixture-mobile-bar .mobile-score {
+    font-weight: 900;
+    color: var(--primary);
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+  }
+
+  /* Time row: sits below the codes row */
   .fixture-mobile-bar .mobile-time {
     font-weight: 700;
     color: var(--text-secondary);
-    font-size: 0.85rem;
-    margin-left: 6px;
+    font-size: 0.72rem;
+    opacity: 0.85;
+    white-space: nowrap;
   }
 
-  /* Hide the large numeric score on small screens to reduce clutter */
-  .score-display { display: none; }
-
-  .score-display { display: none; }
-
-  .match-info { margin: 0; }
-
-  .match-time {
-    font-size: 0.95rem;
-    font-weight: 800;
-    color: var(--primary);
-  }
-
+  /* ── FOOTER on mobile ── */
   .fixture-footer {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding-top: 8px;
+  }
+
+  .stadium-info {
     justify-content: center;
     text-align: center;
+    width: 100%;
+    flex: none;
+  }
+
+  .stadium {
+    white-space: normal;
+    text-align: center;
+    font-size: 0.72rem;
+  }
+
+  .highlights-btn {
+    width: 100%;
+    justify-content: center;
+    min-height: 40px;
+    font-size: 0.8rem;
+  }
+
+  /* AI buttons: stack 1 per row on mobile */
+  .fixture-ai-command-bar {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+
+  .fixture-ai-action-btn {
+    font-size: 0.8rem;
+    padding: 10px 12px;
+    min-height: 42px;
+    white-space: normal;
+    text-align: center;
+    gap: 6px;
+  }
+}
+
+/* ── Extra Small ≤ 360px ── */
+@media (max-width: 360px) {
+  .fixture-match {
+    grid-template-columns: 1fr 64px 1fr;
+    gap: 3px;
+  }
+
+  .team-name {
+    font-size: 0.72rem;
+    max-width: 76px;
+  }
+
+  .fixture-flag {
+    width: 18px !important;
+    height: 12px !important;
+  }
+
+  .team-crest {
+    width: 18px;
+    height: 18px;
+  }
+
+  .fixture-mobile-bar .mobile-team-code {
+    font-size: 0.75rem;
+    min-width: 22px;
+  }
+
+  .fixture-mobile-bar .mobile-vs {
+    font-size: 0.65rem;
+    padding: 2px 4px;
+  }
+}
+
+/* ── Touch: disable sticky hover states ── */
+@media (hover: none) and (pointer: coarse) {
+  .fixture-card:hover     { transform: none; border-color: var(--glass-border); }
+  .highlights-btn:hover   { transform: none; }
+  .fixture-ai-action-btn:hover { transform: none; }
+  .filter-tab:hover       { background: rgba(26, 31, 58, 0.4); }
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .fixture-card,
+  .fixture-thumbnail,
+  .fixture-skeleton-card {
+    transition: none !important;
+    animation: none !important;
   }
 }
