@@ -1,42 +1,13 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./Fixtures.css";
 import TeamFlag from "./TeamFlag";
 
-function Fixtures() {
+function Fixtures({ fixtures = [], loading = true, error = "", refreshFixtures }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const selectedFixtureId = location.state?.selectedFixture;
-
-  const [fixtures, setFixtures] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [filterStatus, setFilterStatus] = useState("all"); // all, live, scheduled, finished
-
-  const getFixtures = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const response = await fetch(
-        "http://localhost:5000/api/fixtures?date=2026-06-11"
-      );
-
-      if (!response.ok) {
-        throw new Error("Unable to connect to football database service.");
-      }
-
-      const data = await response.json();
-      setFixtures(data.events || []);
-    } catch (error) {
-      console.error("Error fetching fixtures:", error);
-      setError(error.message || "Failed to sync tournament schedule.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    getFixtures();
-  }, []);
 
   // Scroll to selected fixture when loading finishes
   useEffect(() => {
@@ -67,11 +38,30 @@ function Fixtures() {
     return { text: "SCHEDULED", type: "scheduled" };
   };
 
-  const filteredFixtures = fixtures.filter((fixture) => {
-    if (filterStatus === "all") return true;
-    const status = getStatusBadge(fixture);
-    return status.type === filterStatus;
-  });
+  const getFilteredFixtures = () => {
+    return fixtures.filter((fixture) => {
+      if (filterStatus === "all") return true;
+      const status = getStatusBadge(fixture);
+      if (filterStatus === "live") return status.type === "live";
+      if (filterStatus === "scheduled") return status.type === "scheduled";
+      if (filterStatus === "finished") return status.type === "finished" || status.type === "halftime";
+      return true;
+    });
+  };
+
+  const filteredFixtures = getFilteredFixtures();
+
+  const handleAIAction = (fixture, actionType) => {
+    let prompt = "";
+    if (actionType === "analyze") {
+      prompt = `Provide an in-depth tactical analysis and team overview for the World Cup match: ${fixture.strHomeTeam} vs ${fixture.strAwayTeam}.`;
+    } else if (actionType === "predict") {
+      prompt = `Predict the scoreline and key goalscorers for the World Cup match between ${fixture.strHomeTeam} and ${fixture.strAwayTeam}. Explain your reasoning.`;
+    } else if (actionType === "context") {
+      prompt = `Explain the tournament context, group stage standings, and qualification implications for the match: ${fixture.strHomeTeam} vs ${fixture.strAwayTeam} in Group ${fixture.strGroup || "N/A"}.`;
+    }
+    navigate("/chat", { state: { initialPrompt: prompt } });
+  };
 
   return (
     <div className="fixtures-container">
@@ -119,10 +109,7 @@ function Fixtures() {
           Scheduled (
           {
             fixtures.filter(
-              (f) => {
-                const s = getStatusBadge(f);
-                return s.type === "scheduled";
-              }
+              (f) => getStatusBadge(f).type === "scheduled"
             ).length
           }
           )
@@ -148,7 +135,7 @@ function Fixtures() {
 
       {loading ? (
         <div className="fixtures-skeleton-container" aria-hidden="true">
-          {[1, 2, 3, 4].map((i) => (
+          {[1, 2, 3].map((i) => (
             <div key={i} className="fixture-skeleton-card skeleton-pulse"></div>
           ))}
         </div>
@@ -159,7 +146,7 @@ function Fixtures() {
             <h3>Failed to Retrieve Fixtures</h3>
             <p>{error}</p>
           </div>
-          <button className="retry-btn" onClick={getFixtures}>
+          <button className="retry-btn" onClick={() => refreshFixtures(false)}>
             🔄 Try Again
           </button>
         </div>
@@ -173,6 +160,9 @@ function Fixtures() {
           {filteredFixtures.map((fixture) => {
             const status = getStatusBadge(fixture);
             const isSelected = fixture.idEvent === selectedFixtureId;
+            const homeCode = fixture.strHomeTeam?.substring(0, 3).toUpperCase();
+            const awayCode = fixture.strAwayTeam?.substring(0, 3).toUpperCase();
+            const displayTime = fixture.strTime ? fixture.strTime.substring(0, 5) : "TBD";
 
             return (
               <div
@@ -180,6 +170,16 @@ function Fixtures() {
                 key={fixture.idEvent}
                 id={`fixture-${fixture.idEvent}`}
               >
+                {/* Event Thumbnail Banner */}
+                {fixture.strThumb && (
+                  <div className="fixture-thumbnail-container">
+                    <img src={fixture.strThumb} alt="" className="fixture-thumbnail" loading="lazy" />
+                    <div className="fixture-thumbnail-overlay">
+                      <span className="fixture-competition-tag">{fixture.strLeague || "FIFA World Cup"}</span>
+                    </div>
+                  </div>
+                )}
+
                 <div className="fixture-header">
                   <div className="badge-row">
                     <span className="status-badge" data-status={status.type}>
@@ -195,62 +195,46 @@ function Fixtures() {
                 </div>
 
                 <div className="fixture-match">
-                  {/* Home Team */}
                   <div className="fixture-team home">
                     <div className="team-flag-badges">
                       <TeamFlag teamName={fixture.strHomeTeam} className="fixture-flag" />
                       {fixture.strHomeTeamBadge && (
-                        <img 
-                          src={fixture.strHomeTeamBadge} 
-                          alt="" 
-                          className="team-crest"
-                          loading="lazy" 
-                        />
+                        <img src={fixture.strHomeTeamBadge} alt="" className="team-crest" loading="lazy" />
                       )}
                     </div>
                     <div className="team-details">
                       <span className="team-name">{fixture.strHomeTeam}</span>
-                      <span className="team-code">
-                        {fixture.strHomeTeam?.substring(0, 3).toUpperCase()}
-                      </span>
+                      <span className="team-code">{fixture.strHomeTeam?.substring(0, 3).toUpperCase()}</span>
                     </div>
                   </div>
 
-                  {/* Score & Time */}
                   <div className="fixture-score">
                     <div className="score-display">
-                      <span className="score-home">
-                        {fixture.intHomeScore ?? "-"}
-                      </span>
+                      <span className="score-home">{fixture.intHomeScore ?? "-"}</span>
                       <span className="score-separator">-</span>
-                      <span className="score-away">
-                        {fixture.intAwayScore ?? "-"}
-                      </span>
+                      <span className="score-away">{fixture.intAwayScore ?? "-"}</span>
                     </div>
                     <div className="match-info">
                       <p className="match-date">{fixture.dateEvent}</p>
-                      <p className="match-time">
-                        {fixture.strTime ? fixture.strTime.substring(0, 5) : "TBD"}
-                      </p>
+                      <p className="match-time">{fixture.strTime ? fixture.strTime.substring(0, 5) : "TBD"}</p>
+                    </div>
+                    {/* Mobile-centered compact bar: visible only on small screens */}
+                    <div className="fixture-mobile-bar" aria-hidden={!fixture}>
+                      <span className="mobile-team-code">{homeCode}</span>
+                      <span className="mobile-vs">VS</span>
+                      <span className="mobile-team-code">{awayCode}</span>
+                      <span className="mobile-time">{displayTime}</span>
                     </div>
                   </div>
 
-                  {/* Away Team */}
                   <div className="fixture-team away">
                     <div className="team-details">
                       <span className="team-name">{fixture.strAwayTeam}</span>
-                      <span className="team-code">
-                        {fixture.strAwayTeam?.substring(0, 3).toUpperCase()}
-                      </span>
+                      <span className="team-code">{fixture.strAwayTeam?.substring(0, 3).toUpperCase()}</span>
                     </div>
                     <div className="team-flag-badges">
                       {fixture.strAwayTeamBadge && (
-                        <img 
-                          src={fixture.strAwayTeamBadge} 
-                          alt="" 
-                          className="team-crest"
-                          loading="lazy" 
-                        />
+                        <img src={fixture.strAwayTeamBadge} alt="" className="team-crest" loading="lazy" />
                       )}
                       <TeamFlag teamName={fixture.strAwayTeam} className="fixture-flag" />
                     </div>
@@ -261,12 +245,12 @@ function Fixtures() {
                   <div className="stadium-info">
                     <span className="icon">🏟️</span>
                     <span className="stadium">
-                      {fixture.strVenue ? fixture.strVenue : "TBA"}
+                      {fixture.strVenue ? fixture.strVenue : "Stadium TBA"}
                       {fixture.strCity && `, ${fixture.strCity}`}
+                      {fixture.strCountry && ` (${fixture.strCountry})`}
                     </span>
                   </div>
 
-                  {/* Watch Highlights */}
                   {fixture.strVideo && (
                     <a
                       href={fixture.strVideo}
@@ -279,6 +263,31 @@ function Fixtures() {
                     </a>
                   )}
                 </div>
+
+                {/* AI Analyst Actions */}
+                <div className="fixture-ai-command-bar">
+                  <button
+                    className="fixture-ai-action-btn"
+                    onClick={() => handleAIAction(fixture, "analyze")}
+                    aria-label="Analyze Match with AI"
+                  >
+                    📊 Analyze Match
+                  </button>
+                  <button
+                    className="fixture-ai-action-btn"
+                    onClick={() => handleAIAction(fixture, "predict")}
+                    aria-label="Predict Outcome with AI"
+                  >
+                    🔮 Predict Outcome
+                  </button>
+                  <button
+                    className="fixture-ai-action-btn"
+                    onClick={() => handleAIAction(fixture, "context")}
+                    aria-label="Explain Match Context with AI"
+                  >
+                    🧠 Explain Context
+                  </button>
+                </div>
               </div>
             );
           })}
@@ -288,4 +297,4 @@ function Fixtures() {
   );
 }
 
-export default Fixtures;
+export default Fixtures;

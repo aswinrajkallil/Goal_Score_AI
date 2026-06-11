@@ -1,9 +1,87 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Standings.css";
 import TeamFlag from "./TeamFlag";
 
 function Standings() {
   const [selectedGroup, setSelectedGroup] = useState("A");
+  const navigate = useNavigate();
+
+  const askAI = (prompt) => {
+    navigate("/chat", { state: { initialPrompt: prompt } });
+  };
+
+  // AI prompts keyed by group
+  const groupAIActions = {
+    A: [
+      {
+        label: "🔍 Qualification Scenarios",
+        prompt:
+          "Analyse Group A of the 2022 FIFA World Cup. Netherlands topped with 7 pts, Senegal qualified 2nd with 6 pts. Explain the tiebreakers and any dramatic qualification scenarios that played out.",
+      },
+      {
+        label: "🏆 Top Performer",
+        prompt:
+          "Who was the standout player in FIFA World Cup 2022 Group A? Highlight stats for Netherlands and Senegal players who made the biggest impact.",
+      },
+      {
+        label: "📊 Group Analysis",
+        prompt:
+          "Give me a full tactical breakdown of Group A at the 2022 FIFA World Cup — playing styles, key battles, and why Qatar struggled.",
+      },
+    ],
+    B: [
+      {
+        label: "🔍 Qualification Scenarios",
+        prompt:
+          "Analyse Group B of the 2022 FIFA World Cup. England topped with 7 pts and USA qualified second. Discuss the crucial matches and moments that decided qualification.",
+      },
+      {
+        label: "🏆 Top Performer",
+        prompt:
+          "Who were the standout players in FIFA World Cup 2022 Group B? Focus on England's top contributors and any surprise performances from USA or Iran.",
+      },
+      {
+        label: "📊 Group Analysis",
+        prompt:
+          "Give me a tactical analysis of Group B at the 2022 FIFA World Cup. How did England dominate, and what went wrong for Wales?",
+      },
+    ],
+    C: [
+      {
+        label: "🔍 Qualification Scenarios",
+        prompt:
+          "Analyse the dramatic Group C at the 2022 FIFA World Cup. Argentina's shock loss to Saudi Arabia shook the group — break down how they recovered and what it took to qualify.",
+      },
+      {
+        label: "🏆 Top Performer",
+        prompt:
+          "Who was the best player in FIFA World Cup 2022 Group C? Did Messi deliver, and what was Saudi Arabia's most surprising performance?",
+      },
+      {
+        label: "📊 Group Analysis",
+        prompt:
+          "Give me a full analysis of Group C at the 2022 FIFA World Cup — the Argentina vs Saudi Arabia upset, Poland's path to qualification, and Mexico's elimination.",
+      },
+    ],
+    D: [
+      {
+        label: "🔍 Qualification Scenarios",
+        prompt:
+          "Analyse Group D of the 2022 FIFA World Cup. France and Australia both had 6 pts. Explain the tiebreakers that separated them and highlight the Australia upset over Denmark.",
+      },
+      {
+        label: "🏆 Top Performer",
+        prompt:
+          "Who were the top performers in FIFA World Cup 2022 Group D? Highlight Kylian Mbappé's contributions and surprise Australian players.",
+      },
+      {
+        label: "📊 Group Analysis",
+        prompt:
+          "Give me a tactical breakdown of Group D at the 2022 FIFA World Cup. Why did Denmark underperform and what made Australia's campaign so impressive?",
+      },
+    ],
+  };
 
   const standingsData = {
     A: [
@@ -185,6 +263,26 @@ function Standings() {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* AI GROUP ANALYSIS ACTIONS */}
+      <div className="standings-ai-bar">
+        <div className="standings-ai-label">
+          <span className="ai-bar-icon">🤖</span>
+          <span>GoalScore AI — Group {selectedGroup} Analysis</span>
+        </div>
+        <div className="standings-ai-actions">
+          {(groupAIActions[selectedGroup] || []).map((action) => (
+            <button
+              key={action.label}
+              className="standings-ai-btn"
+              onClick={() => askAI(action.prompt)}
+              aria-label={`Ask AI: ${action.label}`}
+            >
+              {action.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* LEGEND */}
