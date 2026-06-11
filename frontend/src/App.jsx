@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Routes, Route } from "react-router-dom";
 
 import Chat from "./components/Chat";
@@ -7,6 +8,8 @@ import Standings from "./components/Standings";
 import Navbar from "./components/NavBar";
 
 function App() {
+  const [chatMessages, setChatMessages] = useState([]);
+
   return (
     <>
       <Navbar />
@@ -15,7 +18,12 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/fixtures" element={<Fixtures />} />
         <Route path="/standings" element={<Standings />} />
-        <Route path="/chat" element={<Chat />} />
+        <Route
+          path="/chat"
+          element={
+            <Chat messages={chatMessages} setMessages={setChatMessages} />
+          }
+        />
       </Routes>
     </>
   );

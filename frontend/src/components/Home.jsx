@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Home.css";
-import { getTeamFlag } from "../utils/countryFlags";
+import TeamFlag from "./TeamFlag";
 
 function Home() {
   const navigate = useNavigate();
   const [liveMatches, setLiveMatches] = useState([]);
   const [fixtures, setFixtures] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedGroup, setSelectedGroup] = useState("A");
 
   const standingsData = {
@@ -60,20 +61,21 @@ function Home() {
     },
   ];
 
-  useEffect(() => {
-    fetchFixtures();
-  }, []);
-
-  const fetchFixtures = async () => {
+  // Fetch fixtures and filter live ones
+  const fetchFixtures = async (isSilent = false) => {
+    if (!isSilent) setLoading(true);
+    setError(null);
     try {
       const response = await fetch(
         "http://localhost:5000/api/fixtures?date=2026-06-11"
       );
 
+      if (!response.ok) {
+        throw new Error("Unable to contact the sports stats server.");
+      }
+
       const data = await response.json();
-
       const events = data.events || [];
-
       setFixtures(events);
 
       const live = events.filter(
@@ -81,14 +83,25 @@ function Home() {
           event.strStatus === "Live" ||
           event.strProgress?.includes("'")
       );
-
       setLiveMatches(live);
     } catch (error) {
       console.error("Failed to fetch fixtures:", error);
+      setError("Failed to synchronize matches. Check your internet connection.");
     } finally {
-      setLoading(false);
+      if (!isSilent) setLoading(false);
     }
   };
+
+  // Initial load and auto-refresh every 60 seconds
+  useEffect(() => {
+    fetchFixtures();
+
+    const interval = setInterval(() => {
+      fetchFixtures(true); // Silent refresh to avoid blinking skeletons
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleQuickAction = (prompt) => {
     navigate("/chat", { state: { initialPrompt: prompt } });
@@ -98,10 +111,10 @@ function Home() {
     if (match.strStatus === "Live" || match.strProgress?.includes("'")) {
       return "LIVE";
     }
-    if (match.strStatus === "Half Time") {
+    if (match.strStatus === "Half Time" || match.strStatus === "HT") {
       return "HT";
     }
-    if (match.strStatus === "Full Time" || match.strStatus === "Finished") {
+    if (match.strStatus === "Full Time" || match.strStatus === "Finished" || match.strStatus === "FT") {
       return "FT";
     }
     return match.strStatus || "LIVE";
@@ -110,20 +123,37 @@ function Home() {
   return (
     <div className="home-container">
       {/* Live Matches */}
-      <section className="section">
+      <section className="section" aria-labelledby="live-heading">
         <div className="section-header">
-          <h2>🔴 Live Matches</h2>
+          <h2 id="live-heading">
+            <span className="live-dot-indicator"></span>
+            Live Matches
+          </h2>
           <p className="section-subtitle">
-            {liveMatches.length > 0
-              ? `${liveMatches.length} match${liveMatches.length !== 1 ? "es" : ""} in progress`
-              : "No live matches at the moment"}
+            {!loading && !error && (
+              liveMatches.length > 0
+                ? `${liveMatches.length} match${liveMatches.length !== 1 ? "es" : ""} in progress`
+                : "No live matches at the moment"
+            )}
+            {loading && "Checking live match schedules..."}
           </p>
         </div>
 
-        {loading ? (
-          <div className="loading-skeleton">
-            <div className="skeleton-card"></div>
-            <div className="skeleton-card"></div>
+        {error ? (
+          <div className="error-card">
+            <span className="error-icon">⚠️</span>
+            <div className="error-msg-container">
+              <h3>Database Connection Offline</h3>
+              <p>{error}</p>
+            </div>
+            <button className="retry-btn" onClick={() => fetchFixtures(false)}>
+              🔄 Retry Connection
+            </button>
+          </div>
+        ) : loading ? (
+          <div className="loading-skeleton" aria-hidden="true">
+            <div className="skeleton-card skeleton-pulse"></div>
+            <div className="skeleton-card skeleton-pulse"></div>
           </div>
         ) : liveMatches.length === 0 ? (
           <div className="empty-state">
@@ -133,7 +163,7 @@ function Home() {
         ) : (
           <div className="match-grid">
             {liveMatches.map((match) => (
-              <div className="match-card live" key={match.idEvent}>
+              <div className="match-card live-card" key={match.idEvent}>
                 <div className="match-header">
                   <span className="match-status-badge live-badge">
                     {getStatusBadge(match)}
@@ -144,32 +174,20 @@ function Home() {
                 </div>
 
                 <div className="match-teams">
-                  <div className="team">
-                    <span className="team-flag">
-                      {getTeamFlag(match.strHomeTeam)}
-                    </span>
-                    <span className="team-name">
-                      {match.strHomeTeam}
-                    </span>
+                  <div className="team home-team-row">
+                    <TeamFlag teamName={match.strHomeTeam} className="card-flag" />
+                    <span className="team-name">{match.strHomeTeam}</span>
                   </div>
 
                   <div className="score-container">
-                    <span className="score">
-                      {match.intHomeScore ?? "-"}
-                    </span>
+                    <span className="score">{match.intHomeScore ?? "-"}</span>
                     <span className="score-separator">-</span>
-                    <span className="score">
-                      {match.intAwayScore ?? "-"}
-                    </span>
+                    <span className="score">{match.intAwayScore ?? "-"}</span>
                   </div>
 
-                  <div className="team">
-                    <span className="team-name">
-                      {match.strAwayTeam}
-                    </span>
-                    <span className="team-flag">
-                      {getTeamFlag(match.strAwayTeam)}
-                    </span>
+                  <div className="team away-team-row">
+                    <span className="team-name">{match.strAwayTeam}</span>
+                    <TeamFlag teamName={match.strAwayTeam} className="card-flag" />
                   </div>
                 </div>
               </div>
@@ -179,21 +197,35 @@ function Home() {
       </section>
 
       {/* Today's Fixtures */}
-      <section className="section">
+      <section className="section" aria-labelledby="fixtures-heading">
         <div className="section-header">
-          <h2>📅 Today's Fixtures</h2>
+          <h2 id="fixtures-heading">📅 Today's Fixtures</h2>
           <p className="section-subtitle">
-            {fixtures.length > 0
-              ? `${fixtures.length} fixture${fixtures.length !== 1 ? "s" : ""} scheduled`
-              : "No fixtures scheduled"}
+            {!loading && !error && (
+              fixtures.length > 0
+                ? `${fixtures.length} fixture${fixtures.length !== 1 ? "s" : ""} scheduled`
+                : "No fixtures scheduled"
+            )}
+            {loading && "Loading fixtures..."}
           </p>
         </div>
 
-        {loading ? (
-          <div className="loading-skeleton">
-            <div className="skeleton-card"></div>
-            <div className="skeleton-card"></div>
-            <div className="skeleton-card"></div>
+        {error ? (
+          <div className="error-card">
+            <span className="error-icon">⚠️</span>
+            <div className="error-msg-container">
+              <h3>Unable to Load Fixtures</h3>
+              <p>{error}</p>
+            </div>
+            <button className="retry-btn" onClick={() => fetchFixtures(false)}>
+              🔄 Retry Load
+            </button>
+          </div>
+        ) : loading ? (
+          <div className="loading-skeleton list-skeleton" aria-hidden="true">
+            <div className="skeleton-bar skeleton-pulse"></div>
+            <div className="skeleton-bar skeleton-pulse"></div>
+            <div className="skeleton-bar skeleton-pulse"></div>
           </div>
         ) : fixtures.length === 0 ? (
           <div className="empty-state">
@@ -211,31 +243,43 @@ function Home() {
                     state: { selectedFixture: fixture.idEvent },
                   })
                 }
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    navigate("/fixtures", {
+                      state: { selectedFixture: fixture.idEvent },
+                    });
+                  }
+                }}
+                aria-label={`Fixture: ${fixture.strHomeTeam} versus ${fixture.strAwayTeam}`}
               >
-                <div className="fixture-team">
-                  <span className="team-flag">
-                    {getTeamFlag(fixture.strHomeTeam)}
-                  </span>
-                  <span className="team-name">
-                    {fixture.strHomeTeam}
-                  </span>
-                </div>
-
-                <div className="fixture-info">
-                  <div className="fixture-time">
-                    {fixture.strTime || "TBD"}
+                <div className="fixture-main-row">
+                  <div className="fixture-team home">
+                    <TeamFlag teamName={fixture.strHomeTeam} className="fixture-flag" />
+                    <span className="team-name">{fixture.strHomeTeam}</span>
                   </div>
-                  <div className="fixture-vs">VS</div>
+
+                  <div className="fixture-info">
+                    <div className="fixture-time">
+                      {fixture.strTime ? fixture.strTime.substring(0, 5) : "TBD"}
+                    </div>
+                    <div className="fixture-vs">VS</div>
+                  </div>
+
+                  <div className="fixture-team away">
+                    <span className="team-name">{fixture.strAwayTeam}</span>
+                    <TeamFlag teamName={fixture.strAwayTeam} className="fixture-flag" />
+                  </div>
                 </div>
 
-                <div className="fixture-team away">
-                  <span className="team-name">
-                    {fixture.strAwayTeam}
-                  </span>
-                  <span className="team-flag">
-                    {getTeamFlag(fixture.strAwayTeam)}
-                  </span>
-                </div>
+                {fixture.strVenue && (
+                  <div className="fixture-venue-meta">
+                    <span>🏟️ {fixture.strVenue}</span>
+                    {fixture.strCity && <span className="venue-city"> ({fixture.strCity})</span>}
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -243,21 +287,19 @@ function Home() {
       </section>
 
       {/* Standings Preview */}
-      <section className="section">
+      <section className="section" aria-labelledby="standings-heading">
         <div className="section-header">
-          <h2>📊 Group Standings Preview</h2>
-          <p className="section-subtitle">
-            Top teams from each group
-          </p>
+          <h2 id="standings-heading">📊 Group Standings Preview</h2>
+          <p className="section-subtitle">Top teams in Group stage qualifiers</p>
         </div>
 
-        <div className="group-selector">
+        <div className="group-selector" role="tablist" aria-label="Select Standings Group">
           {Object.keys(standingsData).map((group) => (
             <button
               key={group}
-              className={`group-btn ${
-                selectedGroup === group ? "active" : ""
-              }`}
+              role="tab"
+              aria-selected={selectedGroup === group}
+              className={`group-btn ${selectedGroup === group ? "active" : ""}`}
               onClick={() => setSelectedGroup(group)}
             >
               Group {group}
@@ -268,19 +310,18 @@ function Home() {
         <div className="standings-preview">
           {standingsData[selectedGroup].map((team, index) => (
             <div
-              className={`standing-row ${
-                index < 2 ? "qualified" : ""
-              }`}
+              className={`standing-row ${index < 2 ? "qualified" : ""}`}
               key={team.team}
             >
               <div className="rank">
                 <span className="rank-badge">{index + 1}</span>
               </div>
               <div className="team-info">
-                <span className="team-flag">
-                  {getTeamFlag(team.team)}
-                </span>
+                <TeamFlag teamName={team.team} className="preview-flag" />
                 <span className="team-name">{team.team}</span>
+                {index < 2 && (
+                  <span className="q-badge" aria-label="Qualified for Knockouts">Q</span>
+                )}
               </div>
               <div className="points">
                 <span className="points-value">{team.points}</span>
@@ -292,19 +333,17 @@ function Home() {
           <div className="legend">
             <div className="legend-item qualified">
               <span className="legend-indicator"></span>
-              <span>Qualified for knockout</span>
+              <span>Knockout Stage Qualification (Top 2)</span>
             </div>
           </div>
         </div>
       </section>
 
       {/* AI Quick Actions */}
-      <section className="section">
+      <section className="section" aria-labelledby="ai-heading">
         <div className="section-header">
-          <h2>🤖 Ask GoalScore AI</h2>
-          <p className="section-subtitle">
-            Quick questions about the World Cup
-          </p>
+          <h2 id="ai-heading">🤖 Ask GoalScore AI</h2>
+          <p className="section-subtitle">Quick intelligence actions about the World Cup</p>
         </div>
 
         <div className="action-grid">
@@ -313,8 +352,9 @@ function Home() {
               className="action-button"
               key={action.label}
               onClick={() => handleQuickAction(action.prompt)}
+              aria-label={`Ask assistant: ${action.label}`}
             >
-              <span className="action-icon">{action.icon}</span>
+              <span className="action-icon" aria-hidden="true">{action.icon}</span>
               <span className="action-label">{action.label}</span>
             </button>
           ))}
@@ -324,4 +364,4 @@ function Home() {
   );
 }
 
-export default Home;
+export default Home;

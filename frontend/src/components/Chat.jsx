@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./chat.css";
 
 function getTime() {
@@ -50,23 +50,35 @@ function BotMessage({ text }) {
 }
 
 // ─── Main GoalScore AI ───────────────────────────────────────
-export default function Chat() {
+export default function Chat({ messages = [], setMessages }) {
   const location = useLocation();
-  const [messages, setMessages] = useState([]);
+  const navigate = useNavigate();
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const chatEndRef = useRef(null);
   const inputRef = useRef(null);
+  const hasPopulated = useRef(false);
 
-  // Handle pre-filled prompt from route state
+  // Handle pre-filled prompt from route state exactly once
   useEffect(() => {
-    if (location.state?.initialPrompt) {
+    if (location.state?.initialPrompt && !hasPopulated.current) {
       setInput(location.state.initialPrompt);
+      hasPopulated.current = true;
+      // Clear route state so reloading or back-navigation doesn't re-populate it
+      navigate(location.pathname, { replace: true, state: {} });
     }
-  }, [location.state]);
+  }, [location.state, navigate, location.pathname]);
 
-  useEffect(() => {
+  // Scroll to bottom helper
+  const scrollToBottom = () => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  // Auto-scroll when messages update or loading state changes
+  useEffect(() => {
+    scrollToBottom();
+    const timer = setTimeout(scrollToBottom, 100); // Small delay to guarantee DOM stability
+    return () => clearTimeout(timer);
   }, [messages, loading]);
 
   const sendMessage = async () => {
@@ -77,7 +89,9 @@ export default function Chat() {
     setMessages(newMessages);
     setInput("");
     setLoading(true);
-    inputRef.current?.focus();
+    
+    // Maintain input focus
+    setTimeout(() => inputRef.current?.focus(), 50);
 
     try {
       const res = await fetch("http://localhost:5000/api/chat", {
@@ -85,6 +99,11 @@ export default function Chat() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: userMsg.text }),
       });
+      
+      if (!res.ok) {
+        throw new Error("Server error");
+      }
+
       const data = await res.json();
       setMessages([
         ...newMessages,
@@ -98,14 +117,15 @@ export default function Chat() {
       setMessages([
         ...newMessages,
         {
-          text: "VAR Review: Lost connection to the stadium server.",
+          text: "VAR Review: Lost connection to the stadium server. Please try resending.",
           sender: "bot",
           time: getTime(),
           isError: true,
         },
       ]);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleKeyPress = (e) => {
@@ -120,7 +140,7 @@ export default function Chat() {
       <div className="chat-container goalscore-panel">
         {/* Header: World Cup Pitch/Stadium Vibe */}
         <div className="chat-header worldcup-header">
-          <div className="chat-header-avatar emblem">🏆</div>
+          <div className="chat-header-avatar emblem" aria-hidden="true">🏆</div>
           <div className="chat-header-info">
             <div className="chat-header-name">GoalScore AI</div>
             <div className="chat-header-status live-indicator">
@@ -138,12 +158,13 @@ export default function Chat() {
               <div className="empty-state-title">Welcome to the Arena</div>
               <div className="empty-state-sub">
                 Ask about World Cup match analysis, historical stats,
-                line-ups, or top scorers.
+                line-ups, or predictions.
               </div>
               <div className="kickoff-suggestions">
                 <button
                   onClick={() => setInput("Who won the 1970 World Cup?")}
                   className="suggest-btn"
+                  aria-label="Suggest prompt: Who won the 1970 World Cup?"
                 >
                   1970 Winner? 🏅
                 </button>
@@ -152,6 +173,7 @@ export default function Chat() {
                     setInput("Show top goalscorers tournament record")
                   }
                   className="suggest-btn"
+                  aria-label="Suggest prompt: Show top goalscorers tournament record"
                 >
                   Top Scorers 👟
                 </button>
@@ -172,10 +194,10 @@ export default function Chat() {
                   msg.sender === "user" ? "home-team" : "away-team"
                 }`}
               >
-                <div className="msg-avatar">
+                <div className="msg-avatar" role="img" aria-label={msg.sender}>
                   {msg.sender === "user" ? "🏃‍♂️" : "🤖"}
                 </div>
-                <div>
+                <div className="msg-bubble-container">
                   <div
                     className={`bubble ${msg.sender}-bubble ${
                       msg.isError ? "red-card" : ""
@@ -196,7 +218,7 @@ export default function Chat() {
           {loading && (
             <div className="message away-team">
               <div className="msg-avatar">🤖</div>
-              <div className="bubble bot-bubble typing-indicator">
+              <div className="bubble bot-bubble typing-indicator" aria-label="AI is typing">
                 <span className="pitch-dot" />
                 <span className="pitch-dot" />
                 <span className="pitch-dot" />
@@ -213,16 +235,18 @@ export default function Chat() {
               ref={inputRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onKeyDown={handleKeyPress}
               placeholder="Ask about match analysis, stats, predictions..."
               className="chat-input"
-              rows="3"
+              rows="2"
               disabled={loading}
+              aria-label="Ask GoalScore AI"
             />
             <button
               onClick={sendMessage}
               disabled={loading || !input.trim()}
               className="send-btn"
+              aria-label="Send message"
             >
               {loading ? "⏳" : "⚽ Send"}
             </button>

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "./Standings.css";
-import { getTeamFlag } from "../utils/countryFlags";
+import TeamFlag from "./TeamFlag";
 
 function Standings() {
   const [selectedGroup, setSelectedGroup] = useState("A");
@@ -117,10 +117,12 @@ function Standings() {
       </div>
 
       {/* GROUP TABS */}
-      <div className="group-tabs">
+      <div className="group-tabs" role="tablist" aria-label="Select Standings Group">
         {Object.keys(standingsData).map((group) => (
           <button
             key={group}
+            role="tab"
+            aria-selected={selectedGroup === group}
             className={`group-tab ${selectedGroup === group ? "active" : ""}`}
             onClick={() => setSelectedGroup(group)}
           >
@@ -130,7 +132,7 @@ function Standings() {
       </div>
 
       {/* STANDINGS TABLE */}
-      <div className="table-wrapper">
+      <div className="table-wrapper" tabIndex={0} aria-label="Standings data table (scrollable)">
         <table className="standings-table">
           <thead>
             <tr className="table-header">
@@ -157,25 +159,26 @@ function Standings() {
 
                 <td className="col-team">
                   <div className="team-cell">
-                    <span className="team-flag">
-                      {getTeamFlag(team.team)}
-                    </span>
+                    <TeamFlag teamName={team.team} className="standing-flag" />
                     <span className="team-name">{team.team}</span>
+                    {index < 2 && (
+                      <span className="q-badge" aria-label="Qualified for Knockouts">Q</span>
+                    )}
                   </div>
                 </td>
 
-                <td className="col-stat">{team.played}</td>
-                <td className="col-stat">{team.won}</td>
-                <td className="col-stat">{team.draw}</td>
-                <td className="col-stat">{team.lost}</td>
+                <td className="col-stat" data-label="Played">{team.played}</td>
+                <td className="col-stat" data-label="Won">{team.won}</td>
+                <td className="col-stat" data-label="Drawn">{team.draw}</td>
+                <td className="col-stat" data-label="Lost">{team.lost}</td>
 
-                <td className="col-stat">
+                <td className="col-stat" data-label="Goal Diff">
                   <span className={team.gd > 0 ? "positive" : team.gd < 0 ? "negative" : ""}>
                     {team.gd > 0 ? `+${team.gd}` : team.gd}
                   </span>
                 </td>
 
-                <td className="col-points">
+                <td className="col-points" data-label="Points">
                   <span className="points-badge">{team.points}</span>
                 </td>
               </tr>
@@ -190,7 +193,7 @@ function Standings() {
           <span className="legend-indicator"></span>
           <span className="legend-text">Top 2 teams - Qualify for Round of 16</span>
         </div>
-        <div className="legend-item">
+        <div className="legend-item eliminated">
           <span className="legend-indicator"></span>
           <span className="legend-text">Eliminated from group stage</span>
         </div>
