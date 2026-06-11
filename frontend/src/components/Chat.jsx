@@ -1,9 +1,12 @@
 import { useState, useRef, useEffect } from "react";
-import "./chat.css"; // Ensure you update your CSS variables to match the new theme!
-// import logo from "../assets/goalscore-logo.png"; // Optional: Add a matching logo asset
+import { useLocation } from "react-router-dom";
+import "./chat.css";
 
 function getTime() {
-  return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  return new Date().toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 // ─── Stat/Bullet Renderer ────────────────────────────────────
@@ -28,8 +31,12 @@ function BotMessage({ text }) {
             <span className="bot-bullet-body">
               {hasLabel ? (
                 <>
-                  <span className="bullet-label stat-metric">{line.slice(0, colonIdx + 1)}</span>
-                  <span className="bullet-value stat-val">{line.slice(colonIdx + 1).trim()}</span>
+                  <span className="bullet-label stat-metric">
+                    {line.slice(0, colonIdx + 1)}
+                  </span>
+                  <span className="bullet-value stat-val">
+                    {line.slice(colonIdx + 1).trim()}
+                  </span>
                 </>
               ) : (
                 <span className="bullet-value stat-val">{line}</span>
@@ -44,11 +51,19 @@ function BotMessage({ text }) {
 
 // ─── Main GoalScore AI ───────────────────────────────────────
 export default function Chat() {
+  const location = useLocation();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const chatEndRef = useRef(null);
   const inputRef = useRef(null);
+
+  // Handle pre-filled prompt from route state
+  useEffect(() => {
+    if (location.state?.initialPrompt) {
+      setInput(location.state.initialPrompt);
+    }
+  }, [location.state]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -68,23 +83,41 @@ export default function Chat() {
       const res = await fetch("http://localhost:5000/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: input }),
+        body: JSON.stringify({ message: userMsg.text }),
       });
       const data = await res.json();
-      setMessages([...newMessages, { text: data.reply, sender: "bot", time: getTime() }]);
+      setMessages([
+        ...newMessages,
+        {
+          text: data.reply,
+          sender: "bot",
+          time: getTime(),
+        },
+      ]);
     } catch {
       setMessages([
         ...newMessages,
-        { text: "VAR Review: Lost connection to the stadium server.", sender: "bot", time: getTime(), isError: true },
+        {
+          text: "VAR Review: Lost connection to the stadium server.",
+          sender: "bot",
+          time: getTime(),
+          isError: true,
+        },
       ]);
     }
     setLoading(false);
   };
 
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
+
   return (
     <div className="chat-wrapper tournament-theme">
       <div className="chat-container goalscore-panel">
-
         {/* Header: World Cup Pitch/Stadium Vibe */}
         <div className="chat-header worldcup-header">
           <div className="chat-header-avatar emblem">🏆</div>
@@ -94,9 +127,7 @@ export default function Chat() {
               <span className="live-dot" /> World Cup Intel Hub
             </div>
           </div>
-          <div className="header-match-badge">
-            LIVE STATS
-          </div>
+          <div className="header-match-badge">LIVE STATS</div>
         </div>
 
         {/* Messages Arena */}
@@ -106,11 +137,24 @@ export default function Chat() {
               <div className="empty-state-icon trophy-pulse">🏆</div>
               <div className="empty-state-title">Welcome to the Arena</div>
               <div className="empty-state-sub">
-                Ask about World Cup match analysis, historical stats, line-ups, or top scorers.
+                Ask about World Cup match analysis, historical stats,
+                line-ups, or top scorers.
               </div>
               <div className="kickoff-suggestions">
-                <button onClick={() => setInput("Who won the 1970 World Cup?")} className="suggest-btn">1970 Winner? 🏅</button>
-                <button onClick={() => setInput("Show top goalscorers tournament record")} className="suggest-btn">Top Scorers 👟</button>
+                <button
+                  onClick={() => setInput("Who won the 1970 World Cup?")}
+                  className="suggest-btn"
+                >
+                  1970 Winner? 🏅
+                </button>
+                <button
+                  onClick={() =>
+                    setInput("Show top goalscorers tournament record")
+                  }
+                  className="suggest-btn"
+                >
+                  Top Scorers 👟
+                </button>
               </div>
             </div>
           )}
@@ -123,13 +167,25 @@ export default function Chat() {
                 </div>
               )}
 
-              <div className={`message ${msg.sender === "user" ? "home-team" : "away-team"}`}>
+              <div
+                className={`message ${
+                  msg.sender === "user" ? "home-team" : "away-team"
+                }`}
+              >
                 <div className="msg-avatar">
                   {msg.sender === "user" ? "🏃‍♂️" : "🤖"}
                 </div>
                 <div>
-                  <div className={`bubble ${msg.sender}-bubble ${msg.isError ? "red-card" : ""}`}>
-                    {msg.sender === "bot" ? <BotMessage text={msg.text} /> : msg.text}
+                  <div
+                    className={`bubble ${msg.sender}-bubble ${
+                      msg.isError ? "red-card" : ""
+                    }`}
+                  >
+                    {msg.sender === "bot" ? (
+                      <BotMessage text={msg.text} />
+                    ) : (
+                      msg.text
+                    )}
                   </div>
                   <div className="msg-time match-minute">{msg.time}</div>
                 </div>
@@ -150,35 +206,28 @@ export default function Chat() {
           <div ref={chatEndRef} />
         </div>
 
-        {/* Input Sector */}
-        <div className="input-arena-footer">
-          <div className="input-area tactical-input">
-            <div className="input-wrapper">
-              <input
-                ref={inputRef}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendMessage()}
-                placeholder="Ask GoalScore AI (e.g., 'Compare Messi vs Ronaldo World Cup stats')..."
-                disabled={loading}
-                maxLength={2000}
-              />
-            </div>
-            <button 
-              className="send-btn kickoff-btn" 
-              onClick={sendMessage} 
+        {/* Input Area */}
+        <div className="chat-input-area">
+          <div className="input-wrapper">
+            <textarea
+              ref={inputRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Ask about match analysis, stats, predictions..."
+              className="chat-input"
+              rows="3"
+              disabled={loading}
+            />
+            <button
+              onClick={sendMessage}
               disabled={loading || !input.trim()}
-              title="Send Pass"
+              className="send-btn"
             >
-              ➔
+              {loading ? "⏳" : "⚽ Send"}
             </button>
           </div>
-          <div className="input-footer stadium-credits">
-            <span className="input-hint">Powered by GoalScore Tactical Engine</span>
-            <span className="input-hint">⚽ 🌍</span>
-          </div>
         </div>
-
       </div>
     </div>
   );

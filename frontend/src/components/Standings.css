@@ -1,118 +1,459 @@
 .standings-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 24px;
+  padding: 20px 0;
+  animation: fadeIn 0.6s ease-out;
 }
 
-.standings-header {
-  text-align: center;
+.page-header {
   margin-bottom: 32px;
+  animation: slideInDown 0.6s ease-out;
 }
 
-.standings-header h1 {
+.page-header h1 {
+  font-size: clamp(1.75rem, 5vw, 2.5rem);
+  color: var(--text-h);
   margin-bottom: 8px;
-  color: #222;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.standings-header p {
-  color: #666;
+.header-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  margin: 0;
 }
+
+/* GROUP TABS */
 
 .group-tabs {
   display: flex;
-  gap: 12px;
-  margin-bottom: 24px;
-  overflow-x: auto;
-  padding-bottom: 8px;
+  gap: 8px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  animation: slideInUp 0.6s ease-out;
 }
 
 .group-tab {
-  border: none;
-  background: #f3f4f6;
-  padding: 12px 20px;
+  padding: 12px 24px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  color: var(--text-secondary);
   border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.95rem;
   cursor: pointer;
-  font-weight: 600;
-  white-space: nowrap;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .group-tab:hover {
-  background: #e5e7eb;
+  color: var(--primary);
+  border-color: var(--primary);
+  background: rgba(0, 212, 255, 0.1);
 }
 
 .group-tab.active {
-  background: #1e88e5;
-  color: white;
+  color: var(--text-h);
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 153, 255, 0.15));
+  border-color: var(--primary);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
 }
 
-.table-container {
-  overflow-x: auto;
+/* TABLE WRAPPER */
+
+.table-wrapper {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-md);
+  animation: fadeIn 0.6s ease-out;
+  margin-bottom: 32px;
 }
 
 .standings-table {
   width: 100%;
   border-collapse: collapse;
-  background: white;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  font-size: 0.95rem;
 }
 
-.standings-table th {
-  background: #1e88e5;
-  color: white;
+.table-header {
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 2px solid var(--glass-border);
+}
+
+.table-header th {
   padding: 16px;
+  color: var(--text-h);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.8rem;
   text-align: center;
 }
 
-.standings-table td {
-  padding: 14px;
+.col-rank {
+  width: 50px;
+}
+
+.col-team {
+  text-align: left;
+  flex: 1;
+}
+
+.col-stat {
+  width: 60px;
   text-align: center;
-  border-bottom: 1px solid #eee;
 }
 
-.standings-table tbody tr:nth-child(1),
-.standings-table tbody tr:nth-child(2) {
-  border-left: 4px solid #22c55e;
+.col-points {
+  width: 70px;
+  text-align: center;
 }
 
-.standings-table tbody tr:hover {
-  background: #f9fafb;
+.table-row {
+  border-bottom: 1px solid var(--glass-border);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.points {
+.table-row:hover {
+  background: rgba(0, 212, 255, 0.05);
+  transform: scale(1.01);
+}
+
+.table-row.qualified {
+  background: rgba(0, 255, 149, 0.08);
+  border-left: 4px solid var(--success);
+}
+
+.table-row.qualified:hover {
+  background: rgba(0, 255, 149, 0.12);
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.table-row td {
+  padding: 14px 16px;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.rank-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--primary);
+  color: var(--bg);
+  border-radius: 50%;
+  font-weight: 800;
+  font-size: 0.85rem;
+}
+
+.team-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+}
+
+.team-flag {
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.team-name {
+  font-weight: 700;
+  color: var(--text-h);
+}
+
+.positive {
+  color: var(--success);
   font-weight: 700;
 }
 
-.qualification-info {
-  margin-top: 24px;
+.negative {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.points-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  padding: 6px 12px;
+  background: var(--primary);
+  color: var(--bg);
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+/* LEGEND */
+
+.qualification-legend {
+  display: flex;
+  gap: 24px;
+  padding: 20px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  animation: fadeIn 0.6s ease-out;
 }
 
 .legend-item {
   display: flex;
   align-items: center;
   gap: 12px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
 }
 
-.legend {
-  width: 16px;
-  height: 16px;
+.legend-indicator {
+  width: 24px;
+  height: 24px;
   border-radius: 4px;
+  flex-shrink: 0;
+  background: rgba(0, 212, 255, 0.2);
+  border: 1px solid var(--glass-border);
 }
 
-.qualified {
-  background: #22c55e;
+.legend-item.qualified .legend-indicator {
+  background: var(--success);
+  border-color: var(--success);
 }
+
+.legend-text {
+  font-weight: 500;
+}
+
+/* INFO SECTION */
+
+.info-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-top: 32px;
+}
+
+.info-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 24px;
+  backdrop-filter: blur(10px);
+  text-align: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: fadeIn 0.6s ease-out;
+}
+
+.info-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--primary);
+  background: rgba(0, 212, 255, 0.08);
+  box-shadow: var(--shadow-md);
+}
+
+.info-icon {
+  font-size: 2rem;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.info-card h3 {
+  color: var(--text-h);
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+}
+
+.info-card p {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* RESPONSIVE */
 
 @media (max-width: 768px) {
   .standings-container {
+    padding: 16px 0;
+  }
+
+  .page-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .table-header th {
+    padding: 12px 8px;
+    font-size: 0.7rem;
+  }
+
+  .table-row td {
+    padding: 12px 8px;
+    font-size: 0.85rem;
+  }
+
+  .rank-badge {
+    width: 28px;
+    height: 28px;
+    font-size: 0.75rem;
+  }
+
+  .team-flag {
+    font-size: 1.25rem;
+  }
+
+  .team-name {
+    font-size: 0.85rem;
+  }
+
+  .col-rank {
+    width: 40px;
+  }
+
+  .col-stat {
+    width: 45px;
+  }
+
+  .col-points {
+    width: 55px;
+  }
+
+  .group-tabs {
+    gap: 6px;
+  }
+
+  .group-tab {
+    padding: 10px 16px;
+    font-size: 0.8rem;
+  }
+
+  .qualification-legend {
+    gap: 16px;
     padding: 16px;
   }
 
-  .standings-table th,
-  .standings-table td {
-    padding: 10px;
+  .legend-item {
+    font-size: 0.85rem;
+  }
+
+  .info-section {
+    gap: 16px;
+  }
+
+  .info-card {
+    padding: 16px;
+  }
+
+  .info-icon {
+    font-size: 1.5rem;
+  }
+
+  .info-card h3 {
+    font-size: 1rem;
+  }
+
+  .info-card p {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .table-header th {
+    padding: 10px 4px;
+    font-size: 0.65rem;
+  }
+
+  .table-row td {
+    padding: 10px 4px;
+    font-size: 0.75rem;
+  }
+
+  .rank-badge {
+    width: 24px;
+    height: 24px;
+    font-size: 0.65rem;
+  }
+
+  .team-cell {
+    gap: 8px;
+  }
+
+  .team-flag {
+    font-size: 1rem;
+  }
+
+  .team-name {
+    font-size: 0.75rem;
+  }
+
+  .points-badge {
+    min-width: 32px;
+    padding: 4px 8px;
+    font-size: 0.75rem;
+  }
+
+  .col-rank {
+    width: 32px;
+  }
+
+  .col-stat {
+    width: 35px;
+  }
+
+  .col-points {
+    width: 45px;
+  }
+
+  .group-tabs {
+    gap: 4px;
+  }
+
+  .group-tab {
+    padding: 8px 12px;
+    font-size: 0.7rem;
+  }
+
+  .qualification-legend {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .info-section {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .info-card {
+    padding: 12px;
+  }
+
+  .info-icon {
+    font-size: 1.25rem;
+    margin-bottom: 8px;
+  }
+
+  .info-card h3 {
     font-size: 0.9rem;
+  }
+
+  .info-card p {
+    font-size: 0.75rem;
   }
 }
