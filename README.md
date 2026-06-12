@@ -1,7 +1,7 @@
 # ⚽ GoalScore AI
 
 <p align="center">
-  <img src="./frontend/src/assets/image.png" alt="GoalScore AI Logo" width="180"/>
+  <img src="./frontend/src/assets/Logo.png" alt="GoalScore AI Logo" width="180"/>
 </p>
 
 <p align="center">
