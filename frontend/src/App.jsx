@@ -18,8 +18,10 @@ function App() {
     if (!isSilent) setLoading(true);
     setError(null);
     try {
+      const API_URL = import.meta.env.VITE_API_URL;
+
       const response = await fetch(
-        "http://localhost:5000/api/fixtures?date=2026-06-11"
+        `${API_URL}/api/fixtures?date=2026-06-11`
       );
 
       if (!response.ok) {

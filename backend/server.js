@@ -36,7 +36,7 @@ app.post("/api/chat", async (req, res) => {
         headers: {
           Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
           "Content-Type": "application/json",
-          "HTTP-Referer": "http://localhost:5000",
+          "HTTP-Referer": process.env.APP_URL || "http://localhost:5000",
           "X-Title": "GoalScore AI",
         },
       }
